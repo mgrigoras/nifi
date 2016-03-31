@@ -157,7 +157,7 @@ public class PutKafka extends AbstractProcessor {
             .build();
     public static final PropertyDescriptor MESSAGE_DELIMITER = new PropertyDescriptor.Builder()
             .name("Message Delimiter")
-            .description("Specifies the delimiter to use for splitting apart multiple messages within a single FlowFile. "
+            .description("Specifies the delimiter (interpreted in its UTF-8 byte representation) to use for splitting apart multiple messages within a single FlowFile. "
                             + "If not specified, the entire content of the FlowFile will be used as a single message. If specified, "
                             + "the contents of the FlowFile will be split on this delimiter and each section sent as a separate Kafka "
                             + "message. Note that if messages are delimited and some messages for a given FlowFile are transferred "
@@ -179,7 +179,8 @@ public class PutKafka extends AbstractProcessor {
     static final PropertyDescriptor MAX_RECORD_SIZE = new PropertyDescriptor.Builder()
             .name("Max Record Size")
             .description("The maximum size that any individual record can be.")
-            .addValidator(StandardValidators.DATA_SIZE_VALIDATOR).required(true)
+            .addValidator(StandardValidators.DATA_SIZE_VALIDATOR)
+            .required(true)
             .defaultValue("1 MB")
             .build();
     public static final PropertyDescriptor TIMEOUT = new PropertyDescriptor.Builder()
@@ -296,7 +297,8 @@ public class PutKafka extends AbstractProcessor {
             session.read(flowFile, new InputStreamCallback() {
                 @Override
                 public void process(InputStream contentStream) throws IOException {
-                    failedSegmentsRef.set(kafkaPublisher.publish(messageContext, contentStream, partitionKey));
+                    int maxRecordSize = context.getProperty(MAX_RECORD_SIZE).asDataSize(DataUnit.B).intValue();
+                    failedSegmentsRef.set(kafkaPublisher.publish(messageContext, contentStream, partitionKey, maxRecordSize));
                 }
             });
 
@@ -393,7 +395,7 @@ public class PutKafka extends AbstractProcessor {
         attributes.put(ATTR_FAILED_SEGMENTS, new String(failedSegments.toByteArray(), StandardCharsets.UTF_8));
         attributes.put(ATTR_TOPIC, messageContext.getTopicName());
         attributes.put(ATTR_KEY, messageContext.getKeyBytesAsString());
-        attributes.put(ATTR_DELIMITER, messageContext.getDelimiterPattern());
+        attributes.put(ATTR_DELIMITER, new String(messageContext.getDelimiterBytes(), StandardCharsets.UTF_8));
         return attributes;
     }
 
@@ -403,21 +405,27 @@ public class PutKafka extends AbstractProcessor {
     private SplittableMessageContext buildMessageContext(FlowFile flowFile, ProcessContext context, ProcessSession session) {
         String topicName;
         byte[] key;
-        String delimiterPattern;
+        byte[] delimiterBytes;
 
         String failedSegmentsString = flowFile.getAttribute(ATTR_FAILED_SEGMENTS);
         if (flowFile.getAttribute(ATTR_PROC_ID) != null && flowFile.getAttribute(ATTR_PROC_ID).equals(this.getIdentifier()) && failedSegmentsString != null) {
             topicName = flowFile.getAttribute(ATTR_TOPIC);
+<<<<<<< HEAD
             key = flowFile.getAttribute(ATTR_KEY).getBytes();
             delimiterPattern = flowFile.getAttribute(ATTR_DELIMITER);
+=======
+            key = flowFile.getAttribute(ATTR_KEY) == null ? null : flowFile.getAttribute(ATTR_KEY).getBytes();
+            delimiterBytes = flowFile.getAttribute(ATTR_DELIMITER) != null ? flowFile.getAttribute(ATTR_DELIMITER).getBytes(StandardCharsets.UTF_8) : null;
+>>>>>>> 25290ce... NIFI-1701 fixed StreamScanner, added more tests
         } else {
             failedSegmentsString = null;
             topicName = context.getProperty(TOPIC).evaluateAttributeExpressions(flowFile).getValue();
             String _key = context.getProperty(KEY).evaluateAttributeExpressions(flowFile).getValue();
             key = _key == null ? null : _key.getBytes(StandardCharsets.UTF_8);
-            delimiterPattern = context.getProperty(MESSAGE_DELIMITER).evaluateAttributeExpressions(flowFile).getValue();
+            delimiterBytes = context.getProperty(MESSAGE_DELIMITER).isSet()
+                    ? context.getProperty(MESSAGE_DELIMITER).evaluateAttributeExpressions(flowFile).getValue().getBytes(StandardCharsets.UTF_8) : null;
         }
-        SplittableMessageContext messageContext = new SplittableMessageContext(topicName, key, delimiterPattern);
+        SplittableMessageContext messageContext = new SplittableMessageContext(topicName, key, delimiterBytes);
         if (failedSegmentsString != null) {
             messageContext.setFailedSegmentsAsByteArray(failedSegmentsString.getBytes());
         }
