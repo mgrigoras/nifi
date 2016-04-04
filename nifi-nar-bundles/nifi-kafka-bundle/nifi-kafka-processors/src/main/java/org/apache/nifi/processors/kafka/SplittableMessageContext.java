@@ -45,14 +45,10 @@ final class SplittableMessageContext {
      *            byte array representing bytes by which the data will be
      *            delimited. Can be null.
      */
-<<<<<<< HEAD
-    SplittableMessageContext(String topicName, byte[] keyBytes, String delimiterPattern) {
-=======
     SplittableMessageContext(String topicName, byte[] keyBytes, byte[] delimiterBytes) {
         if (topicName == null || topicName.trim().length() == 0){
             throw new IllegalArgumentException("'topicName' must not be null or empty");
         }
->>>>>>> 25290ce... NIFI-1701 fixed StreamScanner, added more tests
         this.topicName = topicName;
         this.keyBytes = keyBytes;
         this.delimiterBytes = delimiterBytes != null ? delimiterBytes : null;
@@ -68,20 +64,25 @@ final class SplittableMessageContext {
     }
 
     /**
-     *
+     * Will set failed segments from an array of integers
      */
     void setFailedSegments(int... failedSegments) {
-        this.failedSegments = new BitSet();
-        for (int failedSegment : failedSegments) {
-            this.failedSegments.set(failedSegment);
+        if (failedSegments != null) {
+            this.failedSegments = new BitSet();
+            for (int failedSegment : failedSegments) {
+                this.failedSegments.set(failedSegment);
+            }
         }
     }
 
     /**
-     *
+     * Will set failed segments from an array of bytes that will be used to
+     * construct the final {@link BitSet} representing failed segments
      */
     void setFailedSegmentsAsByteArray(byte[] failedSegments) {
-        this.failedSegments = BitSet.valueOf(failedSegments);
+        if (failedSegments != null) {
+            this.failedSegments = BitSet.valueOf(failedSegments);
+        }
     }
 
     /**
@@ -110,7 +111,7 @@ final class SplittableMessageContext {
      * Returns the key bytes as String
      */
     String getKeyBytesAsString() {
-        return new String(this.keyBytes);
+        return this.keyBytes != null ? new String(this.keyBytes) : null;
     }
 
     /**

@@ -410,13 +410,8 @@ public class PutKafka extends AbstractProcessor {
         String failedSegmentsString = flowFile.getAttribute(ATTR_FAILED_SEGMENTS);
         if (flowFile.getAttribute(ATTR_PROC_ID) != null && flowFile.getAttribute(ATTR_PROC_ID).equals(this.getIdentifier()) && failedSegmentsString != null) {
             topicName = flowFile.getAttribute(ATTR_TOPIC);
-<<<<<<< HEAD
-            key = flowFile.getAttribute(ATTR_KEY).getBytes();
-            delimiterPattern = flowFile.getAttribute(ATTR_DELIMITER);
-=======
             key = flowFile.getAttribute(ATTR_KEY) == null ? null : flowFile.getAttribute(ATTR_KEY).getBytes();
             delimiterBytes = flowFile.getAttribute(ATTR_DELIMITER) != null ? flowFile.getAttribute(ATTR_DELIMITER).getBytes(StandardCharsets.UTF_8) : null;
->>>>>>> 25290ce... NIFI-1701 fixed StreamScanner, added more tests
         } else {
             failedSegmentsString = null;
             topicName = context.getProperty(TOPIC).evaluateAttributeExpressions(flowFile).getValue();
