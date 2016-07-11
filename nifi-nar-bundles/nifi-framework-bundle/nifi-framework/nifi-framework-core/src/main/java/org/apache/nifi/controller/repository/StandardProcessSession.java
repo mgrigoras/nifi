@@ -2201,8 +2201,6 @@ public final class StandardProcessSession implements ProcessSession, ProvenanceE
 
             @Override
             public void close() throws IOException {
-                StandardProcessSession.this.bytesRead += countingStream.getBytesRead();
-
                 ffais.close();
                 openInputStreams.remove(source);
             }

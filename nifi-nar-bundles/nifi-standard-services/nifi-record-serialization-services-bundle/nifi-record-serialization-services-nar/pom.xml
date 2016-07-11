@@ -16,10 +16,10 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.nifi</groupId>
-        <artifactId>nifi-standard-services</artifactId>
+        <artifactId>nifi-record-serialization-services-bundle</artifactId>
         <version>1.2.0-SNAPSHOT</version>
     </parent>
-    <artifactId>nifi-standard-services-api-nar</artifactId>
+    <artifactId>nifi-record-serialization-services-nar</artifactId>
     <packaging>nar</packaging>
     <properties>
         <maven.javadoc.skip>true</maven.javadoc.skip>
@@ -28,37 +28,13 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.nifi</groupId>
-            <artifactId>nifi-ssl-context-service-api</artifactId>
-            <scope>compile</scope>
+            <artifactId>nifi-standard-services-api-nar</artifactId>
+            <type>nar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.nifi</groupId>
-            <artifactId>nifi-distributed-cache-client-service-api</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.nifi</groupId>
-            <artifactId>nifi-load-distribution-service-api</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.nifi</groupId>
-            <artifactId>nifi-http-context-map-api</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.nifi</groupId>
-            <artifactId>nifi-dbcp-service-api</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.nifi</groupId>
-            <artifactId>nifi-hbase-client-service-api</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.nifi</groupId>
-            <artifactId>nifi-record-serialization-service-api</artifactId>
+            <artifactId>nifi-record-serialization-services</artifactId>
+            <version>1.2.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
