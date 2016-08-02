@@ -18,6 +18,8 @@ package org.apache.nifi.web.api.dto;
 
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -207,6 +209,21 @@ public class FlowSnippetDTO {
                 id = UUID.fromString(componentDto.getParentGroupId());
                 id = new UUID(id.getMostSignificantBits(), 0);
                 componentDto.setParentGroupId(id.toString());
+
+                if (componentDto instanceof ProcessorDTO) {
+                    ProcessorDTO processorDTO = (ProcessorDTO) componentDto;
+                    Map<String, PropertyDescriptorDTO> map = processorDTO.getConfig().getDescriptors();
+                    Map<String, String> props = processorDTO.getConfig().getProperties();
+                    for (Entry<String, PropertyDescriptorDTO> entry : map.entrySet()) {
+                        if (entry.getValue().getIdentifiesControllerService() != null) {
+                            String key = entry.getKey();
+                            String value = props.get(key);
+                            UUID uuid = UUID.fromString(value);
+                            uuid = new UUID(uuid.getMostSignificantBits(), 0);
+                            props.put(key, uuid.toString());
+                        }
+                    }
+                }
 
                 if (componentDto instanceof ConnectionDTO) {
                     ConnectionDTO connectionDTO = (ConnectionDTO) componentDto;

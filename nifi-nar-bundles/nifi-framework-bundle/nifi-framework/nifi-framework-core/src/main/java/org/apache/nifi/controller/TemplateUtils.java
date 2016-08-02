@@ -188,7 +188,7 @@ public class TemplateUtils {
                 processorConfig.setCustomUiUrl(null);
                 processorConfig.setDefaultConcurrentTasks(null);
                 processorConfig.setDefaultSchedulingPeriod(null);
-                processorConfig.setDescriptors(null);
+                // processorConfig.setDescriptors(null);
                 processorConfig.setAutoTerminatedRelationships(null);
             }
 
