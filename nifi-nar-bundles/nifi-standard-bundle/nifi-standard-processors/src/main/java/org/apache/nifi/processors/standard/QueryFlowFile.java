@@ -79,7 +79,7 @@ import org.apache.nifi.util.StopWatch;
 @EventDriven
 @SideEffectFree
 @SupportsBatching
-@Tags({"sql", "transform", "calcite", "route", "query", "select", "update", "modify", "etl", "filter", "record", "csv", "enrich", "aggregate", "function"})
+@Tags({"sql", "transform", "calcite", "route", "query", "select", "update", "modify", "etl", "filter", "record", "csv", "json", "logs", "text", "avro", "aggregate"})
 @InputRequirement(Requirement.INPUT_REQUIRED)
 @CapabilityDescription("Evaluates one or more SQL queries against the contents of a FlowFile. The result of the "
     + "SQL query then becomes the content of the output FlowFile. This can be used, for example, "

@@ -62,7 +62,8 @@ public class GrokReader extends UserTypeOverrideRowReader implements RowRecordRe
         .build();
     static final PropertyDescriptor GROK_EXPRESSION = new PropertyDescriptor.Builder()
         .name("Grok Expression")
-        .description("Specifies the format of a log line in Grok format. This allows the Record Reader to understand how to parse each log line.")
+        .description("Specifies the format of a log line in Grok format. This allows the Record Reader to understand how to parse each log line. "
+            + "If a line in the log file does not match this pattern, the line will be assumed to belong to the previous log message.")
         .addValidator(new GrokExpressionValidator())
         .required(true)
         .build();

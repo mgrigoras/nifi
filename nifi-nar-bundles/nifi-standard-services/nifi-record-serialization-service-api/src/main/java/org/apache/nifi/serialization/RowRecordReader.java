@@ -24,6 +24,6 @@ public interface RowRecordReader extends Closeable {
 
     Object[] nextRecord(RecordSchema schema) throws IOException, MalformedRecordException;
 
-    RecordSchema getSchema();
+    RecordSchema getSchema() throws MalformedRecordException;
 
 }

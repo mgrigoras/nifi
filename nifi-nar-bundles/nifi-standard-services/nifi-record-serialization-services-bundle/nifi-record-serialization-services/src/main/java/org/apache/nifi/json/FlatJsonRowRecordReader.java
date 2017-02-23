@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -68,22 +69,26 @@ public class FlatJsonRowRecordReader extends AbstractJsonRowRecordReader {
     @Override
     public RecordSchema getSchema() {
         final List<RecordField> recordFields = new ArrayList<>();
-        final Iterator<Map.Entry<String, JsonNode>> itr = getFirstJsonNode().getFields();
-        while (itr.hasNext()) {
-            final Map.Entry<String, JsonNode> entry = itr.next();
-            final String elementName = entry.getKey();
-            final JsonNode node = entry.getValue();
+        final Optional<JsonNode> firstNodeOption = getFirstJsonNode();
 
-            DataType dataType;
-            final DataType overriddenDataType = fieldTypeOverrides.get(elementName);
-            if (overriddenDataType == null) {
-                final RecordFieldType fieldType = determineFieldType(node);
-                dataType = new DataType(fieldType);
-            } else {
-                dataType = overriddenDataType;
+        if (firstNodeOption.isPresent()) {
+            final Iterator<Map.Entry<String, JsonNode>> itr = firstNodeOption.get().getFields();
+            while (itr.hasNext()) {
+                final Map.Entry<String, JsonNode> entry = itr.next();
+                final String elementName = entry.getKey();
+                final JsonNode node = entry.getValue();
+
+                DataType dataType;
+                final DataType overriddenDataType = fieldTypeOverrides.get(elementName);
+                if (overriddenDataType == null) {
+                    final RecordFieldType fieldType = determineFieldType(node);
+                    dataType = new DataType(fieldType);
+                } else {
+                    dataType = overriddenDataType;
+                }
+
+                recordFields.add(new RecordField(elementName, dataType));
             }
-
-            recordFields.add(new RecordField(elementName, dataType));
         }
 
         // If there are any overridden field types that we didn't find, add as the last fields.

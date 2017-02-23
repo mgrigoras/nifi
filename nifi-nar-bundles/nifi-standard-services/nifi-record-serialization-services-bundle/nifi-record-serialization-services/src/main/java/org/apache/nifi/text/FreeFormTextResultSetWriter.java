@@ -34,7 +34,7 @@ import org.apache.nifi.serialization.ResultSetWriter;
 import org.apache.nifi.serialization.ResultSetWriterFactory;
 
 @Tags({"text", "freeform", "expression", "language", "el", "resultset", "writer", "serialize"})
-@CapabilityDescription("Writes the contents of a Database ResultSet as free-form text, as configured. The "
+@CapabilityDescription("Writes the contents of a Database ResultSet as free-form text. The configured "
     + "text is able to make use of the Expression Language to reference each of the columns that are available "
     + "in the ResultSet. Each record in the ResultSet will be separated by a single newline character.")
 public class FreeFormTextResultSetWriter extends AbstractControllerService implements ResultSetWriterFactory {

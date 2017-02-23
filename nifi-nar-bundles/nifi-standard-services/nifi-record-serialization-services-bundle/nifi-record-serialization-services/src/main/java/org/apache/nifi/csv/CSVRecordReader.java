@@ -49,7 +49,6 @@ public class CSVRecordReader implements RowRecordReader {
     public CSVRecordReader(final InputStream in, final ComponentLog logger, final Map<String, DataType> fieldTypeOverrides) throws IOException {
         this.logger = logger;
         reader = new CSVReader(new InputStreamReader(new BufferedInputStream(in)));
-        // TODO: Ignore any header lines that begin with #
         firstLine = reader.readNext();
         this.fieldTypeOverrides = fieldTypeOverrides;
     }

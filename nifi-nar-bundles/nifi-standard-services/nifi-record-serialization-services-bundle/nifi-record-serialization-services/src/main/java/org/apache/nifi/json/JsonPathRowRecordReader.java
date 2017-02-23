@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -77,37 +78,39 @@ public class JsonPathRowRecordReader extends AbstractJsonRowRecordReader {
 
     @Override
     public RecordSchema getSchema() {
-        final JsonNode firstNode = getFirstJsonNode();
+        final Optional<JsonNode> firstNodeOption = getFirstJsonNode();
 
         final List<RecordField> recordFields = new ArrayList<>();
-        final DocumentContext ctx = JsonPath.using(STRICT_PROVIDER_CONFIGURATION).parse(firstNode.toString());
-        for (final Map.Entry<String, JsonPath> entry : jsonPaths.entrySet()) {
-            final String fieldName = PropertyNameUtil.getFieldName(entry.getKey());
-            final JsonPath jsonPath = entry.getValue();
+        if (firstNodeOption.isPresent()) {
+            final DocumentContext ctx = JsonPath.using(STRICT_PROVIDER_CONFIGURATION).parse(firstNodeOption.get().toString());
+            for (final Map.Entry<String, JsonPath> entry : jsonPaths.entrySet()) {
+                final String fieldName = PropertyNameUtil.getFieldName(entry.getKey());
+                final JsonPath jsonPath = entry.getValue();
 
-            final DataType dataType;
-            final DataType dataTypeOverride = fieldTypeOverrides.get(fieldName);
-            if (dataTypeOverride == null) {
-                Object value;
-                try {
-                    value = ctx.read(jsonPath);
-                } catch (final PathNotFoundException pnfe) {
-                    value = null;
-                }
+                final DataType dataType;
+                final DataType dataTypeOverride = fieldTypeOverrides.get(fieldName);
+                if (dataTypeOverride == null) {
+                    Object value;
+                    try {
+                        value = ctx.read(jsonPath);
+                    } catch (final PathNotFoundException pnfe) {
+                        value = null;
+                    }
 
-                final RecordFieldType fieldType;
-                if (value == null) {
-                    fieldType = RecordFieldType.STRING;
+                    final RecordFieldType fieldType;
+                    if (value == null) {
+                        fieldType = RecordFieldType.STRING;
+                    } else {
+                        fieldType = determineFieldType(value);
+                    }
+
+                    dataType = new DataType(fieldType);
                 } else {
-                    fieldType = determineFieldType(value);
+                    dataType = dataTypeOverride;
                 }
 
-                dataType = new DataType(fieldType);
-            } else {
-                dataType = dataTypeOverride;
+                recordFields.add(new RecordField(fieldName, dataType));
             }
-
-            recordFields.add(new RecordField(fieldName, dataType));
         }
 
         // If there are any overridden field types that we didn't find, add as the last fields.

@@ -24,6 +24,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import org.apache.nifi.logging.ComponentLog;
@@ -264,8 +265,8 @@ public abstract class AbstractJsonRowRecordReader implements RowRecordReader {
         return jsonFactory;
     }
 
-    protected JsonNode getFirstJsonNode() {
-        return firstJsonNode;
+    protected Optional<JsonNode> getFirstJsonNode() {
+        return Optional.ofNullable(firstJsonNode);
     }
 
     protected abstract Object[] convertJsonNodeToObjectArray(final JsonNode nextNode, final RecordSchema schema) throws IOException, MalformedRecordException;
