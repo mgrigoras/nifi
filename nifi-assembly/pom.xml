@@ -439,21 +439,6 @@
             <artifactId>nifi-gcp-nar</artifactId>
             <type>nar</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.nifi</groupId>
-            <artifactId>nifi-csv-serialization-service-nar</artifactId>
-            <type>nar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.nifi</groupId>
-            <artifactId>nifi-expression-language-serialization-service-nar</artifactId>
-            <type>nar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.nifi</groupId>
-            <artifactId>nifi-grok-serialization-service-nar</artifactId>
-            <type>nar</type>
-        </dependency>
     </dependencies>
     <profiles>
         <profile>
