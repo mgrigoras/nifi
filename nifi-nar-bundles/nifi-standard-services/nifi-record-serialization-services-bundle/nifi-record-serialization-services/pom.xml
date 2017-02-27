@@ -59,6 +59,32 @@
             <artifactId>grok</artifactId>
             <version>0.1.5</version>
         </dependency>
-
     </dependencies>
+    
+        <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes combine.children="append">
+                        <exclude>src/test/resources/csv/extra-white-space.csv</exclude>
+                        <exclude>src/test/resources/csv/multi-bank-account.csv</exclude>
+                        <exclude>src/test/resources/csv/single-bank-account.csv</exclude>
+                        <exclude>src/test/resources/grok/error-with-stack-trace.log</exclude>
+                        <exclude>src/test/resources/grok/nifi-log-sample-multiline-with-stacktrace.log</exclude>
+                        <exclude>src/test/resources/grok/nifi-log-sample.log</exclude>
+                        <exclude>src/test/resources/grok/single-line-log-messages.txt</exclude>
+                        <exclude>src/test/resources/json/bank-account-array-different-schemas.json</exclude>
+                        <exclude>src/test/resources/json/bank-account-array.json</exclude>
+                        <exclude>src/test/resources/json/json-with-unicode.json</exclude>
+                        <exclude>src/test/resources/json/primitive-type-array.json</exclude>
+                        <exclude>src/test/resources/json/single-bank-account.json</exclude>
+                        <exclude>src/test/resources/json/single-element-nested-array.json</exclude>
+                        <exclude>src/test/resources/json/single-element-nested.json</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

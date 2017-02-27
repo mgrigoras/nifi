@@ -19,7 +19,6 @@ package org.apache.nifi.processors.standard;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -31,7 +30,6 @@ import java.util.List;
 import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.reporting.InitializationException;
-import org.apache.nifi.serialization.DataType;
 import org.apache.nifi.serialization.MalformedRecordException;
 import org.apache.nifi.serialization.RecordField;
 import org.apache.nifi.serialization.RecordFieldType;
@@ -151,7 +149,7 @@ public class TestQueryFlowFile {
         runner.setProperty(QueryFlowFile.RECORD_READER_FACTORY, "parser");
         runner.setProperty(QueryFlowFile.RECORD_WRITER_FACTORY, "writer");
 
-        runner.enqueue(Paths.get("src/test/resources/TestFilterCSVColumns/Numeric.csv"));
+        runner.enqueue(new byte[0]);
         runner.run();
 
         runner.assertTransferCount(REL_NAME, 1);
@@ -327,7 +325,7 @@ public class TestQueryFlowFile {
 
 
         public void addSchemaField(final String fieldName, final RecordFieldType type) {
-            fields.add(new RecordField(fieldName, new DataType(type)));
+            fields.add(new RecordField(fieldName, type.getDataType()));
         }
 
         public void addRecord(Object... values) {
