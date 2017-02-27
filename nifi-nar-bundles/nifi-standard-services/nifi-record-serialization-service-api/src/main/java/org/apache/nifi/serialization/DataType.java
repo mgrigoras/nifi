@@ -21,12 +21,7 @@ public class DataType {
     private final RecordFieldType fieldType;
     private final String format;
 
-    public DataType(final RecordFieldType fieldType) {
-        this.fieldType = fieldType;
-        this.format = fieldType.getDefaultFormat();
-    }
-
-    public DataType(final RecordFieldType fieldType, final String format) {
+    DataType(final RecordFieldType fieldType, final String format) {
         this.fieldType = fieldType;
         this.format = format;
     }

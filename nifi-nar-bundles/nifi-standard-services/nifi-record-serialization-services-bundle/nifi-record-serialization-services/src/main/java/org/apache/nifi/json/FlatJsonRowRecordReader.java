@@ -82,7 +82,7 @@ public class FlatJsonRowRecordReader extends AbstractJsonRowRecordReader {
                 final DataType overriddenDataType = fieldTypeOverrides.get(elementName);
                 if (overriddenDataType == null) {
                     final RecordFieldType fieldType = determineFieldType(node);
-                    dataType = new DataType(fieldType);
+                    dataType = fieldType.getDataType();
                 } else {
                     dataType = overriddenDataType;
                 }
@@ -92,7 +92,6 @@ public class FlatJsonRowRecordReader extends AbstractJsonRowRecordReader {
         }
 
         // If there are any overridden field types that we didn't find, add as the last fields.
-        // TODO: Document that they go at the end and give an example!
         final Set<String> knownFieldNames = recordFields.stream()
             .map(f -> f.getFieldName())
             .collect(Collectors.toSet());

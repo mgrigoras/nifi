@@ -28,7 +28,6 @@ import org.apache.nifi.serialization.RowRecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
 import org.apache.nifi.serialization.UserTypeOverrideRowReader;
 
-// TODO: Document for all of the services what data types are valid (int, float, date:yyyy-MM-dd, timestamp:yyyy-MM-dd HH:mm:sss, etc.)
 @Tags({"csv", "parse", "record", "row", "reader", "delimited", "comma", "separated", "values"})
 @CapabilityDescription("Parses CSV-formatted data, returning each row in the CSV file as a separate record. "
     + "This reader assumes that the first line in the content is the column names and all subsequent lines are "

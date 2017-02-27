@@ -186,7 +186,7 @@ public class TestFlatJsonRowRecordReader {
     @Test
     public void testReadArrayDifferentSchemasWithOverride() throws IOException, MalformedRecordException {
         final Map<String, DataType> overrides = new HashMap<>();
-        overrides.put("address2", new DataType(RecordFieldType.STRING));
+        overrides.put("address2", RecordFieldType.STRING.getDataType());
 
         try (final InputStream in = new FileInputStream(new File("src/test/resources/json/bank-account-array-different-schemas.json"));
             final FlatJsonRowRecordReader reader = new FlatJsonRowRecordReader(in, Mockito.mock(ComponentLog.class), overrides)) {

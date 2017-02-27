@@ -23,6 +23,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -40,6 +42,7 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
+import org.codehaus.jackson.node.ObjectNode;
 
 
 public abstract class AbstractJsonRowRecordReader implements RowRecordReader {
@@ -208,7 +211,7 @@ public abstract class AbstractJsonRowRecordReader implements RowRecordReader {
                 final Object[] arrayElements = new Object[numElements];
                 int count = 0;
                 for (final JsonNode node : arrayNode) {
-                    final Object converted = convertField(node, fieldName, new DataType(determineFieldType(node)));
+                    final Object converted = convertField(node, fieldName, determineFieldType(node).getDataType());
                     arrayElements[count++] = converted;
                 }
 
@@ -216,7 +219,17 @@ public abstract class AbstractJsonRowRecordReader implements RowRecordReader {
             }
             case OBJECT: {
                 if (fieldNode.isObject()) {
-                    return new ObjectMapper().convertValue(fieldNode, Map.class);
+                    final ObjectNode objectNode = (ObjectNode) fieldNode;
+                    final Iterator<Map.Entry<String, JsonNode>> childItr = objectNode.getFields();
+                    final Map<String, Object> childMap = new HashMap<>();
+                    while (childItr.hasNext()) {
+                        final Map.Entry<String, JsonNode> entry = childItr.next();
+                        final JsonNode node = entry.getValue();
+                        final RecordFieldType determinedType = determineFieldType(node);
+                        final Object value = convertField(node, node.asText(), determinedType.getDataType());
+                        childMap.put(entry.getKey(), value);
+                    }
+                    return childMap;
                 } else {
                     return fieldNode.toString();
                 }

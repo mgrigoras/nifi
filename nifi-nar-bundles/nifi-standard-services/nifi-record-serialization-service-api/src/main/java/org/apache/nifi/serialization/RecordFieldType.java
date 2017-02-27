@@ -48,6 +48,7 @@ public enum RecordFieldType {
 
     private final String simpleName;
     private final String defaultFormat;
+    private final DataType defaultDataType;
 
     private RecordFieldType(final String simpleName) {
         this(simpleName, null);
@@ -56,10 +57,22 @@ public enum RecordFieldType {
     private RecordFieldType(final String simpleName, final String defaultFormat) {
         this.simpleName = simpleName;
         this.defaultFormat = defaultFormat;
+        this.defaultDataType = new DataType(this, defaultFormat);
     }
 
     public String getDefaultFormat() {
         return defaultFormat;
+    }
+
+    /**
+     * @return the DataType with the default format
+     */
+    public DataType getDataType() {
+        return defaultDataType;
+    }
+
+    public DataType getDataType(final String format) {
+        return new DataType(this, format);
     }
 
     public static RecordFieldType of(final String typeString) {

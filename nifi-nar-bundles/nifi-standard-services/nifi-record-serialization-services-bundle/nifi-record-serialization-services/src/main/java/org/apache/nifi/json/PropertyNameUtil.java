@@ -77,9 +77,9 @@ public class PropertyNameUtil {
 
             final Optional<String> format = getFieldFormat(propertyName);
             if (format.isPresent()) {
-                return Optional.of(new DataType(fieldType, format.get()));
+                return Optional.of(fieldType.getDataType(format.get()));
             } else {
-                return Optional.of(new DataType(fieldType));
+                return Optional.of(fieldType.getDataType());
             }
         }
 

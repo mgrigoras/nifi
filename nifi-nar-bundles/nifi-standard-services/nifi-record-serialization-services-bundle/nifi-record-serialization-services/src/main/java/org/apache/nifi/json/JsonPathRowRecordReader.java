@@ -50,9 +50,6 @@ import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 public class JsonPathRowRecordReader extends AbstractJsonRowRecordReader {
     private static final Configuration STRICT_PROVIDER_CONFIGURATION = Configuration.builder().jsonProvider(new JacksonJsonProvider()).build();
 
-    // TODO: This can be better. Instead of hard-coding these formats, we should
-    // allow user to enter the format via overridden field types by entering something
-    // like date:<format> or time:<format>, etc. E.g., timestamp:yyyy-MM-dd HH:mm:ss.SSS'Z'
     private static final String TIME_FORMAT_DATE = "yyyy-MM-dd";
     private static final String TIME_FORMAT_TIME = "HH:mm:ss";
     private static final String TIME_FORMAT_TIMESTAMP = "yyyy-MM-dd HH:mm:ss";
@@ -104,7 +101,7 @@ public class JsonPathRowRecordReader extends AbstractJsonRowRecordReader {
                         fieldType = determineFieldType(value);
                     }
 
-                    dataType = new DataType(fieldType);
+                    dataType = fieldType.getDataType();
                 } else {
                     dataType = dataTypeOverride;
                 }
@@ -114,7 +111,6 @@ public class JsonPathRowRecordReader extends AbstractJsonRowRecordReader {
         }
 
         // If there are any overridden field types that we didn't find, add as the last fields.
-        // TODO: Document that they go at the end and give an example!
         final Set<String> knownFieldNames = recordFields.stream()
             .map(f -> f.getFieldName())
             .collect(Collectors.toSet());

@@ -30,14 +30,16 @@ import org.apache.nifi.serialization.RowRecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
 import org.apache.nifi.serialization.UserTypeOverrideRowReader;
 
-// TODO: Need to provide examples of Object/Array in the Usage!
 @Tags({"json", "flat", "record", "reader", "parser"})
-@CapabilityDescription("Parses \"flat\" JSON records into a row-oriented record. By \"flat\" we mean JSON that does not "
-    + "have any nested elements. The root JSON element can be either a single element or an array of JSON elements, and each "
+@CapabilityDescription("Parses JSON records into a row-oriented record. The term \"flat\" here refers to the schema of the JSON, not "
+    + "necessarily the JSON itself. That is, if the JSON has nested arrays and objects, those values will be parsed and their values will "
+    + "be inferred. The data types of the embedded objects' and arrays' fields cannot be specified like highest-level fields can. "
+    + "The root JSON element can be either a single element or an array of JSON elements, and each "
     + "element in that array will be treated as a separate record. If any of the elements has a nested array or a nested "
-    + "element, they will be returned as OBJECT or ARRAY types, not broken out into individual records. "
-    + "The schema for the record is determined by the first "
-    + "JSON element in the array, if an array is used. The data type of a field can be overridden by adding a property to "
+    + "element, they will be returned as OBJECT or ARRAY types, not flattened out into individual records. "
+    + "The schema for the record is determined by the first JSON element in the array, if the incoming FlowFile is a JSON array. "
+    + "This means that if a field does not exist in the first JSON object, then it will be skipped in all subsequent JSON objects. "
+    + "The data type of a field can be overridden by adding a property to "
     + "the controller service where the name of the property matches the JSON field name and the value of the property is "
     + "the data type to use. If that field does not exist in a JSON element, the field will be assumed to be null. "
     + "See the Usage of the Controller Service for more information.")

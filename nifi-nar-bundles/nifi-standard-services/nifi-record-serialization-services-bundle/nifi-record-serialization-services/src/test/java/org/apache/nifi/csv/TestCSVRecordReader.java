@@ -39,9 +39,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class TestCSVRecordReader {
-    private final DataType stringDataType = new DataType(RecordFieldType.STRING);
-    private final DataType doubleDataType = new DataType(RecordFieldType.DOUBLE);
-    private final DataType timeDataType = new DataType(RecordFieldType.TIME);
+    private final DataType stringDataType = RecordFieldType.STRING.getDataType();
+    private final DataType doubleDataType = RecordFieldType.DOUBLE.getDataType();
+    private final DataType timeDataType = RecordFieldType.TIME.getDataType();
 
     @Test
     public void testSimpleParse() throws IOException, MalformedRecordException {

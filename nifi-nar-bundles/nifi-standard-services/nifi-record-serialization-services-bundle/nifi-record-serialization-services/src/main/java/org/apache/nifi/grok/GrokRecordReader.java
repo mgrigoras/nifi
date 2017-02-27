@@ -114,8 +114,6 @@ public class GrokRecordReader implements RowRecordReader {
                 }
             } else {
                 // The next line matched our pattern.
-                // TODO: Test having one 1 of 5 patterns matched, for instance. %LogLevel %Timestamp %Thread %Message
-                // and have only %LogLevel match, for instance. We want this to be appended to the previous message in that case.
                 break;
             }
         }
@@ -197,7 +195,6 @@ public class GrokRecordReader implements RowRecordReader {
     }
 
 
-    // TODO: Remove from GrokDeserializer and CSVDeserializer and move into a util class
     protected Object convert(final DataType fieldType, final String string) {
         if (fieldType == null) {
             return string;
@@ -288,7 +285,7 @@ public class GrokRecordReader implements RowRecordReader {
 
                 DataType dataType = fieldTypeOverrides.get(fieldName);
                 if (dataType == null) {
-                    dataType = new DataType(RecordFieldType.STRING);
+                    dataType = RecordFieldType.STRING.getDataType();
                 }
 
                 final RecordField recordField = new RecordField(fieldName, dataType);
@@ -302,7 +299,7 @@ public class GrokRecordReader implements RowRecordReader {
             }
         }
 
-        fields.add(new RecordField(STACK_TRACE_COLUMN_NAME, new DataType(RecordFieldType.STRING)));
+        fields.add(new RecordField(STACK_TRACE_COLUMN_NAME, RecordFieldType.STRING.getDataType()));
 
         return new SimpleRecordSchema(fields);
     }

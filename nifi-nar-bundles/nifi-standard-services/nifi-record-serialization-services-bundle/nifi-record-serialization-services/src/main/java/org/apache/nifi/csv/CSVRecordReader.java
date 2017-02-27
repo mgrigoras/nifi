@@ -95,7 +95,7 @@ public class CSVRecordReader implements RowRecordReader {
             if (overriddenDataType != null) {
                 dataType = overriddenDataType;
             } else {
-                dataType = new DataType(RecordFieldType.STRING);
+                dataType = RecordFieldType.STRING.getDataType();
             }
 
             final RecordField field = new RecordField(name, dataType);
@@ -103,7 +103,7 @@ public class CSVRecordReader implements RowRecordReader {
         }
 
         if (recordFields.isEmpty()) {
-            recordFields.add(new RecordField("line", new DataType(RecordFieldType.STRING)));
+            recordFields.add(new RecordField("line", RecordFieldType.STRING.getDataType()));
         }
 
         return new SimpleRecordSchema(recordFields);
@@ -159,7 +159,6 @@ public class CSVRecordReader implements RowRecordReader {
                     final Date date = new SimpleDateFormat(dataType.getFormat()).parse(value);
                     return new java.sql.Date(date.getTime());
                 } catch (final ParseException e) {
-                    // TODO: Throw MalformedRecordException instead of logging?
                     logger.warn("Found invalid value for DATE field: " + value + " does not match expected format of "
                         + dataType.getFormat() + "; will substitute a NULL value for this field");
                     return null;

@@ -19,6 +19,8 @@ package org.apache.nifi.json;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,6 +32,8 @@ import org.apache.nifi.annotation.documentation.SeeAlso;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.annotation.lifecycle.OnEnabled;
 import org.apache.nifi.components.PropertyDescriptor;
+import org.apache.nifi.components.ValidationContext;
+import org.apache.nifi.components.ValidationResult;
 import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.controller.ConfigurationContext;
 import org.apache.nifi.logging.ComponentLog;
@@ -91,6 +95,27 @@ public class JsonPathReader extends AbstractControllerService implements RowReco
 
         jsonPaths = compiled;
         fieldTypeOverrides = fieldTypes;
+    }
+
+    @Override
+    protected Collection<ValidationResult> customValidate(final ValidationContext validationContext) {
+        boolean pathSpecified = false;
+        for (final PropertyDescriptor property : validationContext.getProperties().keySet()) {
+            if (property.isDynamic()) {
+                pathSpecified = true;
+                break;
+            }
+        }
+
+        if (pathSpecified) {
+            return Collections.emptyList();
+        }
+
+        return Collections.singleton(new ValidationResult.Builder()
+            .subject("JSON Paths")
+            .valid(false)
+            .explanation("No JSON Paths were specified")
+            .build());
     }
 
     @Override

@@ -63,7 +63,7 @@ public abstract class UserTypeOverrideRowReader extends AbstractControllerServic
                 dataType = new DataType(fieldType, format);
             } else {
                 final RecordFieldType fieldType = RecordFieldType.of(dataTypeName);
-                dataType = new DataType(fieldType);
+                dataType = fieldType.getDataType();
             }
 
             overrides.put(fieldName, dataType);
