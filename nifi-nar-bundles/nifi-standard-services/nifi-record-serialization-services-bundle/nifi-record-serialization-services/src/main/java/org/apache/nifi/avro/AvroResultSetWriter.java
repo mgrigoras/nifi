@@ -20,6 +20,7 @@ package org.apache.nifi.avro;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.avro.Schema;
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.annotation.lifecycle.OnEnabled;
@@ -27,50 +28,36 @@ import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.controller.ConfigurationContext;
 import org.apache.nifi.logging.ComponentLog;
-import org.apache.nifi.processor.util.StandardValidators;
 import org.apache.nifi.serialization.ResultSetWriter;
 import org.apache.nifi.serialization.ResultSetWriterFactory;
 
 @Tags({"avro", "result", "set", "writer", "serializer", "record", "row"})
-@CapabilityDescription("Writes the contents of a Database ResultSet in Binary Avro format.")
+@CapabilityDescription("Writes the contents of a Database ResultSet in Binary Avro format. The data types in the Result Set must match those "
+    + "specified by the Avro Schema. No type coercion will occur. In addition, the label of the column must be a valid Avro field name.")
 public class AvroResultSetWriter extends AbstractControllerService implements ResultSetWriterFactory {
-    static final PropertyDescriptor ROOT_RECORD_NAME = new PropertyDescriptor.Builder()
-        .name("Root Record Name")
-        .description("The name of the root Avro Record")
-        .addValidator(StandardValidators.NON_EMPTY_VALIDATOR)
+    static final PropertyDescriptor SCHEMA = new PropertyDescriptor.Builder()
+        .name("Avro Schema")
+        .description("The Avro Schema to use when writing out the Result Set")
+        .addValidator(new AvroSchemaValidator())
         .expressionLanguageSupported(false)
-        .defaultValue("FlowFile")
         .required(true)
         .build();
 
-    static final PropertyDescriptor CONVERT_NAMES = new PropertyDescriptor.Builder()
-        .name("Normalize Names")
-        .description("Avro has a strict naming policy for fields. If any column in the ResultSet has a label that "
-            + "does not adhere to this naming policy, this property controls whether NiFi will normalize the name "
-            + "into a legal Avro name (if 'true') or fail to write to the data (if 'false')")
-        .expressionLanguageSupported(false)
-        .allowableValues("true", "false")
-        .defaultValue("true")
-        .required(true)
-        .build();
-
-    private volatile boolean convertNames;
-    private volatile String rootRecordName;
+    private volatile Schema schema;
 
     @Override
     protected List<PropertyDescriptor> getSupportedPropertyDescriptors() {
-        return Arrays.asList(ROOT_RECORD_NAME, CONVERT_NAMES);
+        return Arrays.asList(SCHEMA);
     }
 
     @OnEnabled
     public void storePropertyValues(final ConfigurationContext context) {
-        rootRecordName = context.getProperty(ROOT_RECORD_NAME).getValue();
-        convertNames = context.getProperty(CONVERT_NAMES).asBoolean();
+        schema = new Schema.Parser().parse(context.getProperty(SCHEMA).getValue());
     }
 
     @Override
     public ResultSetWriter createWriter(final ComponentLog logger) {
-        return new WriteAvroResult(rootRecordName, convertNames);
+        return new WriteAvroResult(schema);
     }
 
 }
