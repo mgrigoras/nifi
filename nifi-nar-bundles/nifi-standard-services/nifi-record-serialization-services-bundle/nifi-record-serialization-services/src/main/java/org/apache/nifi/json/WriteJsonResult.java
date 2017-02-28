@@ -175,28 +175,30 @@ public class WriteJsonResult implements ResultSetWriter {
                     generator.writeEndObject();
                 } else if (value instanceof List) {
                     final List<?> list = (List<?>) value;
-                    generator.writeStartArray();
-                    for (int i = 0; i < list.size(); i++) {
-                        final boolean moreEntries = i < list.size() - 1;
-                        final Object element = list.get(i);
-                        writeValue(generator, element, getColType(element), moreEntries, dateFormat, timeFormat, timestampFormat);
-                    }
-                    generator.writeEndArray();
+                    writeArray(list.toArray(), generator, dateFormat, timeFormat, timestampFormat);
                 } else if (value instanceof Array) {
                     final Array array = (Array) value;
-                    generator.writeStartArray();
                     final Object[] values = (Object[]) array.getArray();
-                    for (int i = 0; i < values.length; i++) {
-                        final boolean moreEntries = i < values.length - 1;
-                        final Object element = values[i];
-                        writeValue(generator, element, getColType(element), moreEntries, dateFormat, timeFormat, timestampFormat);
-                    }
-                    generator.writeEndArray();
+                    writeArray(values, generator, dateFormat, timeFormat, timestampFormat);
+                } else if (value instanceof Object[]) {
+                    final Object[] values = (Object[]) value;
+                    writeArray(values, generator, dateFormat, timeFormat, timestampFormat);
                 } else {
                     generator.writeString(value.toString());
                 }
                 break;
         }
+    }
+
+    private void writeArray(final Object[] values, final JsonGenerator generator, final DateFormat dateFormat, final DateFormat timeFormat, final DateFormat timestampFormat)
+        throws JsonGenerationException, IOException, SQLException {
+        generator.writeStartArray();
+        for (int i = 0; i < values.length; i++) {
+            final boolean moreEntries = i < values.length - 1;
+            final Object element = values[i];
+            writeValue(generator, element, getColType(element), moreEntries, dateFormat, timeFormat, timestampFormat);
+        }
+        generator.writeEndArray();
     }
 
     private int getColType(final Object value) {

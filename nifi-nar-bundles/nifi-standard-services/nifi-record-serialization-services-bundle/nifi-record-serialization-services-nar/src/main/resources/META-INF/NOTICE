@@ -69,3 +69,9 @@ The following binary components are provided under the Apache Software License v
        Copyright 2011 JsonPath authors
 
   (ASLv2) opencsv (net.sf.opencsv:opencsv:2.3)
+
+  (ASLv2) Apache Avro
+    The following NOTICE information applies:
+      Apache Avro
+      Copyright 2009-2013 The Apache Software Foundation
+  

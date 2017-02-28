@@ -15,23 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.nifi.csv;
+package org.apache.nifi.avro;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.logging.ComponentLog;
-import org.apache.nifi.serialization.ResultSetWriter;
-import org.apache.nifi.serialization.ResultSetWriterFactory;
+import org.apache.nifi.serialization.MalformedRecordException;
+import org.apache.nifi.serialization.RowRecordReader;
+import org.apache.nifi.serialization.RowRecordReaderFactory;
 
-@Tags({"csv", "result", "set", "writer", "serializer", "record", "row"})
-@CapabilityDescription("Writes the contents of a Database ResultSet as CSV data. The first line written "
-    + "will be the column names. All subsequent lines will be the values corresponding to those columns.")
-public class CSVResultSetWriter extends AbstractControllerService implements ResultSetWriterFactory {
+@Tags({"avro", "parse", "record", "row", "reader", "delimited", "comma", "separated", "values"})
+@CapabilityDescription("Parses Avro data and returns each Avro record as an separate record.")
+public class AvroReader extends AbstractControllerService implements RowRecordReaderFactory {
 
     @Override
-    public ResultSetWriter createWriter(final ComponentLog logger) {
-        return new WriteCSVResult();
+    public RowRecordReader createRecordReader(final InputStream in, final ComponentLog logger) throws MalformedRecordException, IOException {
+        return new AvroRecordReader(in);
     }
 
 }

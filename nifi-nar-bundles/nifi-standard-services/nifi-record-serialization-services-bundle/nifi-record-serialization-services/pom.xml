@@ -59,9 +59,13 @@
             <artifactId>grok</artifactId>
             <version>0.1.5</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+        </dependency>
     </dependencies>
-    
-        <build>
+
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.rat</groupId>

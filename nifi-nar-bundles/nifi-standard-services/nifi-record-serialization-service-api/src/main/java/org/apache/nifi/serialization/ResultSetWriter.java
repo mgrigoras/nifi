@@ -20,6 +20,7 @@ package org.apache.nifi.serialization;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public interface ResultSetWriter {
     /**
@@ -29,8 +30,9 @@ public interface ResultSetWriter {
      * @param out the OutputStream to write to
      * @return the results of writing the data
      * @throws IOException if unable to write to the given OutputStream
+     * @throws SQLException if unable to process the result set as necessary
      */
-    WriteResult write(ResultSet resultSet, OutputStream out) throws IOException;
+    WriteResult write(ResultSet resultSet, OutputStream out) throws IOException, SQLException;
 
     /**
      * @return the MIME Type that the Result Set Writer produces. This will be added to FlowFiles using
