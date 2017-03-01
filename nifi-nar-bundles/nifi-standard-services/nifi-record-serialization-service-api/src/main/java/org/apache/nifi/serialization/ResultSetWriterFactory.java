@@ -20,6 +20,11 @@ package org.apache.nifi.serialization;
 import org.apache.nifi.controller.ControllerService;
 import org.apache.nifi.logging.ComponentLog;
 
+/**
+ * <p>
+ * A Controller Service that is responsible for creating a {@link ResultSetWriter}.
+ * </p>
+ */
 public interface ResultSetWriterFactory extends ControllerService {
     ResultSetWriter createWriter(ComponentLog logger);
 }

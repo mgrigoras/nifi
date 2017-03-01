@@ -22,6 +22,16 @@ import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * <p>
+ * A ResultSetWriter is responsible for writing a ResultSet to a given {@link OutputStream}.
+ * </p>
+ *
+ * <p>
+ * PLEASE NOTE: This interface is still considered 'unstable' and may change in a non-backward-compatible
+ * manner between minor or incremental releases of NiFi.
+ * </p>
+ */
 public interface ResultSetWriter {
     /**
      * Writes the given result set to the given output stream
@@ -32,6 +42,8 @@ public interface ResultSetWriter {
      * @throws IOException if unable to write to the given OutputStream
      * @throws SQLException if unable to process the result set as necessary
      */
+    // TODO: RowRecordReader is given an InputStream as a constructor argument.
+    // ResultSetWriter is given an OutputStream to write to. These should probably be consistent.
     WriteResult write(ResultSet resultSet, OutputStream out) throws IOException, SQLException;
 
     /**

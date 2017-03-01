@@ -2161,6 +2161,7 @@ public final class StandardProcessSession implements ProcessSession, ProvenanceE
         final FlowFileAccessInputStream ffais = new FlowFileAccessInputStream(countingStream, source, record.getCurrentClaim());
 
         final InputStream errorHandlingStream = new InputStream() {
+            private boolean closed = false;
 
             @Override
             public int read() throws IOException {
@@ -2201,7 +2202,10 @@ public final class StandardProcessSession implements ProcessSession, ProvenanceE
 
             @Override
             public void close() throws IOException {
-                StandardProcessSession.this.bytesRead += countingStream.getBytesRead();
+                if (!closed) {
+                    StandardProcessSession.this.bytesRead += countingStream.getBytesRead();
+                    closed = true;
+                }
 
                 ffais.close();
                 openInputStreams.remove(source);

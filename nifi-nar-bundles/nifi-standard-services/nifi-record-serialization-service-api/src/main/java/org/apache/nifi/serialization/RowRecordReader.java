@@ -20,10 +20,33 @@ package org.apache.nifi.serialization;
 import java.io.Closeable;
 import java.io.IOException;
 
+/**
+ * <p>
+ * A RowRecordReader is responsible for parsing data and returning a record at a time
+ * in order to allow the caller to iterate over the records individually.
+ * </p>
+ *
+ * <p>
+ * PLEASE NOTE: This interface is still considered 'unstable' and may change in a non-backward-compatible
+ * manner between minor or incremental releases of NiFi.
+ * </p>
+ */
 public interface RowRecordReader extends Closeable {
 
+    /**
+     * Returns the next record in the stream or <code>null</code> if no more records are available.
+     *
+     * @param schema the schema to use in order to determine how to interprets the fields in a record
+     * @return the next record in the stream or <code>null</code> if no more records are available.
+     *
+     * @throws IOException if unable to read from the underlying data
+     * @throws MalformedRecordException if an unrecoverable failure occurs when trying to parse a record
+     */
     Object[] nextRecord(RecordSchema schema) throws IOException, MalformedRecordException;
 
+    /**
+     * @return a RecordSchema that is appropriate for the records in the stream
+     * @throws MalformedRecordException if an unrecoverable failure occurs when trying to parse the underlying data
+     */
     RecordSchema getSchema() throws MalformedRecordException;
-
 }

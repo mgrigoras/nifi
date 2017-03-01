@@ -20,6 +20,18 @@ package org.apache.nifi.serialization;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * <p>
+ * Provides information about what was written to an OutputStream by a {@link ResultSetWriter}.
+ * Instances of WriteResult are typically instantiated by calling the static method {@link WriteResult#of(int, Map)}
+ * or using {@link WriteResult#EMPTY}.
+ * </p>
+ *
+ * <p>
+ * PLEASE NOTE: This interface is still considered 'unstable' and may change in a non-backward-compatible
+ * manner between minor or incremental releases of NiFi.
+ * </p>
+ */
 public interface WriteResult {
 
     /**
@@ -28,10 +40,17 @@ public interface WriteResult {
     int getRecordCount();
 
     /**
-     * @return values that should be added to the FLowFile as attributes
+     * @return values that should be added to the FlowFile as attributes
      */
     Map<String, String> getAttributes();
 
+    /**
+     * Creates a WriteResult with the given record count and attributes
+     *
+     * @param recordCount the number of records written
+     * @param attributes the attributes to add to the FlowFile
+     * @return A {@link WriteResult} representing the given parameters
+     */
     public static WriteResult of(final int recordCount, final Map<String, String> attributes) {
         return new WriteResult() {
             @Override

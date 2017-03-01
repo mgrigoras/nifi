@@ -23,6 +23,11 @@ import java.io.InputStream;
 import org.apache.nifi.controller.ControllerService;
 import org.apache.nifi.logging.ComponentLog;
 
+/**
+ * <p>
+ * A Controller Service that is responsible for creating a {@link RowRecordReader}.
+ * </p>
+ */
 public interface RowRecordReaderFactory extends ControllerService {
     RowRecordReader createRecordReader(InputStream in, ComponentLog logger) throws MalformedRecordException, IOException;
 }
