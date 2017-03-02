@@ -19,7 +19,6 @@ package org.apache.nifi.serialization;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.nifi.serialization.record.RecordSet;
@@ -34,7 +33,7 @@ import org.apache.nifi.serialization.record.RecordSet;
  * manner between minor or incremental releases of NiFi.
  * </p>
  */
-public interface ResultSetWriter {
+public interface RecordSetWriter {
     /**
      * Writes the given result set to the given output stream
      *
@@ -44,25 +43,6 @@ public interface ResultSetWriter {
      * @throws IOException if unable to write to the given OutputStream
      * @throws SQLException if unable to process the result set as necessary
      */
-    // TODO: RowRecordReader is given an InputStream as a constructor argument.
-    // ResultSetWriter is given an OutputStream to write to. These should probably be consistent.
-    // TODO: Consider changing this API. Instead of taking a ResultSet, consider a RecordSet.
-    // RecordSet would look similar to ResultSet but would avoid a lot of the API that isn't necessary for us
-    // so that we can make it more portable.
-    // Something like:
-    // Optional<DataRecord> nextRecord();
-    // and then DataRecord would have something like:
-    // Object[] getValues();
-    // Object getValue(int index);
-    // Object getValue(String fieldName);
-    // RecordSchema getSchema();
-    // Object getValue(int index, DataType preferredDataType); -- here perhaps DataType<T> has RecordFieldType<T> and here we can return type T
-    // Object getValue(String fieldName, DataType preferredDataType); -- here perhaps DataType<T> has RecordFieldType<T> and here we can return type T
-    // RecordSchema getSchema()
-    //
-    // We then can have a ResultSetRecordSet that is backed by a ResultSet
-    // We could also have simpler model.
-    // Would make unit testing far easier, as well!
     WriteResult write(RecordSet recordSet, OutputStream out) throws IOException, SQLException;
 
     /**

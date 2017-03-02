@@ -31,8 +31,9 @@ import java.util.TimeZone;
 
 import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RowRecordReader;
+import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordFieldType;
 import org.apache.nifi.serialization.record.RecordSchema;
 import org.codehaus.jackson.JsonFactory;
@@ -45,7 +46,7 @@ import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
 
 
-public abstract class AbstractJsonRowRecordReader implements RowRecordReader {
+public abstract class AbstractJsonRowRecordReader implements RecordReader {
     private final ComponentLog logger;
     private final JsonParser jsonParser;
     private final JsonFactory jsonFactory;
@@ -84,13 +85,13 @@ public abstract class AbstractJsonRowRecordReader implements RowRecordReader {
     }
 
     @Override
-    public Object[] nextRecord(final RecordSchema schema) throws IOException, MalformedRecordException {
+    public Record nextRecord(final RecordSchema schema) throws IOException, MalformedRecordException {
         if (firstObjectConsumed && !array) {
             return null;
         }
 
         final JsonNode nextNode = getNextJsonNode();
-        return convertJsonNodeToObjectArray(nextNode, schema);
+        return convertJsonNodeToRecord(nextNode, schema);
     }
 
     protected RecordFieldType determineFieldType(final JsonNode node) {
@@ -282,5 +283,5 @@ public abstract class AbstractJsonRowRecordReader implements RowRecordReader {
         return Optional.ofNullable(firstJsonNode);
     }
 
-    protected abstract Object[] convertJsonNodeToObjectArray(final JsonNode nextNode, final RecordSchema schema) throws IOException, MalformedRecordException;
+    protected abstract Record convertJsonNodeToRecord(final JsonNode nextNode, final RecordSchema schema) throws IOException, MalformedRecordException;
 }

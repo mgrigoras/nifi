@@ -45,7 +45,7 @@ import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.processor.ProcessSession;
 import org.apache.nifi.processor.exception.ProcessException;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RowRecordReader;
+import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
 import org.apache.nifi.serialization.record.DataType;
 import org.apache.nifi.serialization.record.RecordField;
@@ -136,7 +136,7 @@ public class FlowFileTable<S, E> extends AbstractTable implements QueryableTable
 
         RecordSchema schema;
         try (final InputStream in = session.read(flowFile)) {
-            final RowRecordReader recordParser = recordParserFactory.createRecordReader(in, logger);
+            final RecordReader recordParser = recordParserFactory.createRecordReader(in, logger);
             schema = recordParser.getSchema();
         } catch (final MalformedRecordException | IOException e) {
             throw new ProcessException("Failed to determine schema of data records for " + flowFile, e);

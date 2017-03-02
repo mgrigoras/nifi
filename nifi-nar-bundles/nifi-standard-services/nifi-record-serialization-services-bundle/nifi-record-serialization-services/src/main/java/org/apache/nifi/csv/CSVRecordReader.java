@@ -30,16 +30,18 @@ import java.util.Map;
 
 import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RowRecordReader;
+import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.SimpleRecordSchema;
 import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.ObjectArrayRecord;
+import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordField;
 import org.apache.nifi.serialization.record.RecordFieldType;
 import org.apache.nifi.serialization.record.RecordSchema;
 
 import au.com.bytecode.opencsv.CSVReader;
 
-public class CSVRecordReader implements RowRecordReader {
+public class CSVRecordReader implements RecordReader {
     private final ComponentLog logger;
     private final CSVReader reader;
     private final String[] firstLine;
@@ -54,7 +56,7 @@ public class CSVRecordReader implements RowRecordReader {
     }
 
     @Override
-    public Object[] nextRecord(final RecordSchema schema) throws IOException, MalformedRecordException {
+    public Record nextRecord(final RecordSchema schema) throws IOException, MalformedRecordException {
         while (true) {
             final String[] line = reader.readNext();
             if (line == null) {
@@ -68,15 +70,18 @@ public class CSVRecordReader implements RowRecordReader {
             }
 
             try {
+                final Object[] rowValues;
                 if (fieldTypes.size() == 1) {
-                    return new Object[] {convert(fieldTypes.get(0), line[0].trim())};
+                    rowValues = new Object[] {convert(fieldTypes.get(0), line[0].trim())};
                 } else {
                     final Object[] objects = new Object[fieldTypes.size()];
                     for (int i = 0; i < fieldTypes.size(); i++) {
                         objects[i] = convert(fieldTypes.get(i), line[i].trim());
                     }
-                    return objects;
+                    rowValues = objects;
                 }
+
+                return new ObjectArrayRecord(schema, rowValues);
             } catch (final Exception e) {
                 throw new MalformedRecordException("Found invalid CSV record", e);
             }

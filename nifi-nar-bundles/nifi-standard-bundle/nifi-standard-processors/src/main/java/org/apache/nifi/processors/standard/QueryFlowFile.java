@@ -70,8 +70,8 @@ import org.apache.nifi.processor.Relationship;
 import org.apache.nifi.processor.exception.ProcessException;
 import org.apache.nifi.processor.io.OutputStreamCallback;
 import org.apache.nifi.queryflowfile.FlowFileTable;
-import org.apache.nifi.serialization.ResultSetWriter;
-import org.apache.nifi.serialization.ResultSetWriterFactory;
+import org.apache.nifi.serialization.RecordSetWriter;
+import org.apache.nifi.serialization.RecordSetWriterFactory;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
 import org.apache.nifi.serialization.WriteResult;
 import org.apache.nifi.serialization.record.ResultSetRecordSet;
@@ -105,7 +105,7 @@ public class QueryFlowFile extends AbstractProcessor {
     static final PropertyDescriptor RECORD_WRITER_FACTORY = new PropertyDescriptor.Builder()
         .name("Record Writer")
         .description("Specifies the Controller Service to use for writing results to a FlowFile")
-        .identifiesControllerService(ResultSetWriterFactory.class)
+        .identifiesControllerService(RecordSetWriterFactory.class)
         .required(true)
         .build();
     static final PropertyDescriptor INCLUDE_ZERO_RECORD_FLOWFILES = new PropertyDescriptor.Builder()
@@ -233,12 +233,12 @@ public class QueryFlowFile extends AbstractProcessor {
 
         final StopWatch stopWatch = new StopWatch(true);
 
-        final ResultSetWriterFactory resultSetWriterFactory = context.getProperty(RECORD_WRITER_FACTORY)
-            .asControllerService(ResultSetWriterFactory.class);
+        final RecordSetWriterFactory resultSetWriterFactory = context.getProperty(RECORD_WRITER_FACTORY)
+            .asControllerService(RecordSetWriterFactory.class);
         final RowRecordReaderFactory recordParserFactory = context.getProperty(RECORD_READER_FACTORY)
             .asControllerService(RowRecordReaderFactory.class);
 
-        final ResultSetWriter resultSetWriter = resultSetWriterFactory.createWriter(getLogger());
+        final RecordSetWriter resultSetWriter = resultSetWriterFactory.createWriter(getLogger());
         final Map<FlowFile, Relationship> transformedFlowFiles = new HashMap<>();
         final Set<FlowFile> createdFlowFiles = new HashSet<>();
 

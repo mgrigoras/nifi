@@ -22,7 +22,7 @@ import java.util.Map;
 
 /**
  * <p>
- * Provides information about what was written to an OutputStream by a {@link ResultSetWriter}.
+ * Provides information about what was written to an OutputStream by a {@link RecordSetWriter}.
  * Instances of WriteResult are typically instantiated by calling the static method {@link WriteResult#of(int, Map)}
  * or using {@link WriteResult#EMPTY}.
  * </p>

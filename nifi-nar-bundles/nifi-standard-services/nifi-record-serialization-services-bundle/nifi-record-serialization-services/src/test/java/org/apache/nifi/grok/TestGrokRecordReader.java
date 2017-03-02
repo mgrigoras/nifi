@@ -54,7 +54,7 @@ public class TestGrokRecordReader {
             final String[] messages = new String[] {"Test Message 1", "Red", "Green", "Blue", "Yellow"};
 
             for (int i = 0; i < logLevels.length; i++) {
-                final Object[] values = deserializer.nextRecord(schema);
+                final Object[] values = deserializer.nextRecord(schema).getValues();
 
                 assertNotNull(values);
                 assertEquals(4, values.length); // values[] contains 4 elements: timestamp, level, message, STACK_TRACE
@@ -81,7 +81,7 @@ public class TestGrokRecordReader {
         final GrokRecordReader deserializer = new GrokRecordReader(bais, grok, Collections.emptyMap());
 
         final RecordSchema schema = deserializer.getSchema();
-        final Object[] values = deserializer.nextRecord(schema);
+        final Object[] values = deserializer.nextRecord(schema).getValues();
 
         assertNotNull(values);
         assertEquals(6, values.length); // values[] contains 4 elements: timestamp, level, message, STACK_TRACE
@@ -109,7 +109,7 @@ public class TestGrokRecordReader {
             final String[] logLevels = new String[] {"INFO", "INFO", "INFO", "WARN", "WARN"};
 
             for (int i = 0; i < logLevels.length; i++) {
-                final Object[] values = deserializer.nextRecord(schema);
+                final Object[] values = deserializer.nextRecord(schema).getValues();
 
                 assertNotNull(values);
                 assertEquals(6, values.length); // values[] contains 6 elements: timestamp, level, thread, class, message, STACK_TRACE
@@ -135,7 +135,7 @@ public class TestGrokRecordReader {
             final String[] logLevels = new String[] {"INFO", "INFO", "ERROR", "WARN", "WARN"};
 
             for (int i = 0; i < logLevels.length; i++) {
-                final Object[] values = deserializer.nextRecord(schema);
+                final Object[] values = deserializer.nextRecord(schema).getValues();
 
                 assertNotNull(values);
                 assertEquals(6, values.length); // values[] contains 6 elements: timestamp, level, thread, class, message, STACK_TRACE
@@ -171,7 +171,7 @@ public class TestGrokRecordReader {
                 "message without stack trace"};
 
             for (int i = 0; i < logLevels.length; i++) {
-                final Object[] values = deserializer.nextRecord(schema);
+                final Object[] values = deserializer.nextRecord(schema).getValues();
 
                 assertNotNull(values);
                 assertEquals(4, values.length); // values[] contains 4 elements: timestamp, level, message, STACK_TRACE

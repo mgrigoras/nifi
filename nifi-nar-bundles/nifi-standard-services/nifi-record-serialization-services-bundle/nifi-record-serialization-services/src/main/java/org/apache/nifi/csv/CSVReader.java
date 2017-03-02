@@ -24,7 +24,7 @@ import org.apache.nifi.annotation.behavior.DynamicProperty;
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.logging.ComponentLog;
-import org.apache.nifi.serialization.RowRecordReader;
+import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
 import org.apache.nifi.serialization.UserTypeOverrideRowReader;
 
@@ -42,7 +42,7 @@ import org.apache.nifi.serialization.UserTypeOverrideRowReader;
 public class CSVReader extends UserTypeOverrideRowReader implements RowRecordReaderFactory {
 
     @Override
-    public RowRecordReader createRecordReader(final InputStream in, final ComponentLog logger) throws IOException {
+    public RecordReader createRecordReader(final InputStream in, final ComponentLog logger) throws IOException {
         return new CSVRecordReader(in, logger, getFieldTypeOverrides());
     }
 

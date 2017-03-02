@@ -26,8 +26,9 @@ import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.processor.ProcessSession;
 import org.apache.nifi.processor.exception.ProcessException;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RowRecordReader;
+import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
+import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordSchema;
 
 public class FlowFileEnumerator<InternalType> implements Enumerator<Object> {
@@ -38,9 +39,9 @@ public class FlowFileEnumerator<InternalType> implements Enumerator<Object> {
     private final int[] fields;
 
     private InputStream rawIn;
-    private Object currentRecord;
+    private Object currentRow;
     private RecordSchema schema;
-    private RowRecordReader recordParser;
+    private RecordReader recordParser;
 
     public FlowFileEnumerator(final ProcessSession session, final FlowFile flowFile, final ComponentLog logger, final RowRecordReaderFactory parserFactory,
             final RecordSchema schema, final int[] fields) {
@@ -55,34 +56,40 @@ public class FlowFileEnumerator<InternalType> implements Enumerator<Object> {
 
     @Override
     public Object current() {
-        return currentRecord;
+        return currentRow;
     }
 
     @Override
     public boolean moveNext() {
-        currentRecord = null;
-        while (currentRecord == null) {
+        currentRow = null;
+        while (currentRow == null) {
             try {
-                currentRecord = filterColumns(recordParser.nextRecord(schema));
+                currentRow = filterColumns(recordParser.nextRecord(schema));
                 break;
             } catch (final IOException e) {
                 logger.error("Failed to read next record in stream for " + flowFile + ". Assuming end of stream.", e);
-                currentRecord = null;
+                currentRow = null;
                 break;
             } catch (final MalformedRecordException mre) {
                 logger.error("Failed to parse record in stream for " + flowFile + ". Will skip record and continue reading", mre);
             }
         }
 
-        if (currentRecord == null) {
+        if (currentRow == null) {
             // If we are out of data, close the InputStream. We do this because
             // Calcite does not necessarily call our close() method.
             close();
         }
-        return (currentRecord != null);
+        return (currentRow != null);
     }
 
-    private Object filterColumns(final Object[] row) {
+    private Object filterColumns(final Record record) {
+        if (record == null) {
+            return null;
+        }
+
+        final Object[] row = record.getValues();
+
         // If we want no fields or if the row is null, just return null
         if (fields == null || row == null) {
             return row;

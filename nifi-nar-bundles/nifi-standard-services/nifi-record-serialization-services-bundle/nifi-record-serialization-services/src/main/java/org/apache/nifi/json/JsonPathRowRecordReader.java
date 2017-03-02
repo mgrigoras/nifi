@@ -36,6 +36,8 @@ import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.serialization.MalformedRecordException;
 import org.apache.nifi.serialization.SimpleRecordSchema;
 import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.ObjectArrayRecord;
+import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordField;
 import org.apache.nifi.serialization.record.RecordFieldType;
 import org.apache.nifi.serialization.record.RecordSchema;
@@ -127,7 +129,7 @@ public class JsonPathRowRecordReader extends AbstractJsonRowRecordReader {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected Object[] convertJsonNodeToObjectArray(final JsonNode jsonNode, final RecordSchema schema) throws IOException {
+    protected Record convertJsonNodeToRecord(final JsonNode jsonNode, final RecordSchema schema) throws IOException {
         if (jsonNode == null) {
             return null;
         }
@@ -160,7 +162,7 @@ public class JsonPathRowRecordReader extends AbstractJsonRowRecordReader {
             values[index++] = value;
         }
 
-        return values;
+        return new ObjectArrayRecord(schema, values);
     }
 
     private boolean shouldConvert(final Object value, final RecordFieldType determinedType) {

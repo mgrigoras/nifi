@@ -32,9 +32,11 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RowRecordReader;
+import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.SimpleRecordSchema;
 import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.ObjectArrayRecord;
+import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordField;
 import org.apache.nifi.serialization.record.RecordFieldType;
 import org.apache.nifi.serialization.record.RecordSchema;
@@ -43,7 +45,7 @@ import io.thekraken.grok.api.Grok;
 import io.thekraken.grok.api.GrokUtils;
 import io.thekraken.grok.api.Match;
 
-public class GrokRecordReader implements RowRecordReader {
+public class GrokRecordReader implements RecordReader {
     private final BufferedReader reader;
     private final Grok grok;
     private final Map<String, DataType> fieldTypeOverrides;
@@ -81,7 +83,7 @@ public class GrokRecordReader implements RowRecordReader {
     }
 
     @Override
-    public Object[] nextRecord(final RecordSchema schema) throws IOException, MalformedRecordException {
+    public Record nextRecord(final RecordSchema schema) throws IOException, MalformedRecordException {
         final String line = nextLine == null ? reader.readLine() : nextLine;
         nextLine = null; // ensure that we don't process nextLine again
         if (line == null) {
@@ -92,7 +94,7 @@ public class GrokRecordReader implements RowRecordReader {
         match.captures();
         final Map<String, Object> valueMap = match.toMap();
         if (valueMap.isEmpty()) {   // We were unable to match the pattern so return an empty Object array.
-            return new Object[schema.getFieldCount()];
+            return new ObjectArrayRecord(schema, new Object[schema.getFieldCount()]);
         }
 
         // Read the next line to see if it matches the pattern (in which case we will simply leave it for
@@ -139,7 +141,7 @@ public class GrokRecordReader implements RowRecordReader {
 
             values[values.length - 1] = stackTrace;
 
-            return values;
+            return new ObjectArrayRecord(schema, values);
         } catch (final Exception e) {
             throw new MalformedRecordException("Found invalid log record and will skip it. Record: " + line, e);
         }

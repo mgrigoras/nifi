@@ -30,14 +30,14 @@ import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.controller.ConfigurationContext;
 import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.processor.util.StandardValidators;
-import org.apache.nifi.serialization.ResultSetWriter;
-import org.apache.nifi.serialization.ResultSetWriterFactory;
+import org.apache.nifi.serialization.RecordSetWriter;
+import org.apache.nifi.serialization.RecordSetWriterFactory;
 
 @Tags({"text", "freeform", "expression", "language", "el", "resultset", "writer", "serialize"})
 @CapabilityDescription("Writes the contents of a Database ResultSet as free-form text. The configured "
     + "text is able to make use of the Expression Language to reference each of the columns that are available "
     + "in the ResultSet. Each record in the ResultSet will be separated by a single newline character.")
-public class FreeFormTextResultSetWriter extends AbstractControllerService implements ResultSetWriterFactory {
+public class FreeFormTextRecordSetWriter extends AbstractControllerService implements RecordSetWriterFactory {
     static final PropertyDescriptor TEXT = new PropertyDescriptor.Builder()
         .name("Text")
         .description("The text to use when writing the results. This property will evaluate the Expression Language using any of the columns available to the Result Set. For example, if the "
@@ -73,7 +73,7 @@ public class FreeFormTextResultSetWriter extends AbstractControllerService imple
     }
 
     @Override
-    public ResultSetWriter createWriter(final ComponentLog logger) {
+    public RecordSetWriter createWriter(final ComponentLog logger) {
         return new FreeFormTextWriter(textValue, characterSet);
     }
 

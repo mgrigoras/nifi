@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.nifi.serialization.ResultSetWriter;
+import org.apache.nifi.serialization.RecordSetWriter;
 import org.apache.nifi.serialization.WriteResult;
 import org.apache.nifi.serialization.record.DataType;
 import org.apache.nifi.serialization.record.Record;
@@ -40,7 +40,7 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
 
-public class WriteJsonResult implements ResultSetWriter {
+public class WriteJsonResult implements RecordSetWriter {
     private final boolean prettyPrint;
 
     public WriteJsonResult(final boolean prettyPrint) {

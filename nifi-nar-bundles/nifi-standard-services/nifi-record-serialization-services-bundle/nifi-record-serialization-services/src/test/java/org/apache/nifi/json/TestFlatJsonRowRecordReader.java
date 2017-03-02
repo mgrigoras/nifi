@@ -59,14 +59,13 @@ public class TestFlatJsonRowRecordReader {
                 RecordFieldType.DOUBLE, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {1, "John Doe", 4750.89, "123 My Street", "My City", "MS", "11111", "USA"}, firstRecordValues);
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
+            final Object[] secondRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {2, "Jane Doe", 4820.09, "321 Your Street", "Your City", "NY", "33333", "USA"}, secondRecordValues);
 
-            final Object[] thirdRecordValues = reader.nextRecord(schema);
-            assertNull(thirdRecordValues);
+            assertNull(reader.nextRecord(schema));
         }
     }
 
@@ -86,11 +85,10 @@ public class TestFlatJsonRowRecordReader {
                 RecordFieldType.DOUBLE, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {1, "John Doe", 4750.89, "123 My Street", "My City", "MS", "11111", "USA"}, firstRecordValues);
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
-            assertNull(secondRecordValues);
+            assertNull(reader.nextRecord(schema));
         }
     }
 
@@ -110,7 +108,7 @@ public class TestFlatJsonRowRecordReader {
                 RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.RECORD});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
             final Object[] allButLast = Arrays.copyOfRange(firstRecordValues, 0, firstRecordValues.length - 1);
             Assert.assertArrayEquals(new Object[] {1, "John Doe", "123 My Street", "My City", "MS", "11111", "USA"}, allButLast);
 
@@ -120,8 +118,7 @@ public class TestFlatJsonRowRecordReader {
             assertEquals(42, map.get("id"));
             assertEquals(4750.89, map.get("balance"));
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
-            assertNull(secondRecordValues);
+            assertNull(reader.nextRecord(schema));
         }
     }
 
@@ -142,15 +139,14 @@ public class TestFlatJsonRowRecordReader {
                 RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.ARRAY});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
             final Object[] nonArrayValues = Arrays.copyOfRange(firstRecordValues, 0, firstRecordValues.length - 1);
             Assert.assertArrayEquals(new Object[] {1, "John Doe", "123 My Street", "My City", "MS", "11111", "USA"}, nonArrayValues);
 
             final Object lastRecord = firstRecordValues[firstRecordValues.length - 1];
             assertTrue(Object[].class.isAssignableFrom(lastRecord.getClass()));
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
-            assertNull(secondRecordValues);
+            assertNull(reader.nextRecord(schema));
         }
     }
 
@@ -170,13 +166,13 @@ public class TestFlatJsonRowRecordReader {
                 RecordFieldType.DOUBLE, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {1, "John Doe", 4750.89, "123 My Street", "My City", "MS", "11111", "USA"}, firstRecordValues);
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
+            final Object[] secondRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {2, "Jane Doe", 4820.09, "321 Your Street", "Your City", "NY", "33333", null}, secondRecordValues);
 
-            final Object[] thirdRecordValues = reader.nextRecord(schema);
+            final Object[] thirdRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {3, "Jake Doe", 4751.89, "124 My Street", "My City", "MS", "11111", "USA"}, thirdRecordValues);
 
             assertNull(reader.nextRecord(schema));
@@ -202,13 +198,13 @@ public class TestFlatJsonRowRecordReader {
                 RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {1, "John Doe", 4750.89, "123 My Street", "My City", "MS", "11111", "USA", null}, firstRecordValues);
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
+            final Object[] secondRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {2, "Jane Doe", 4820.09, "321 Your Street", "Your City", "NY", "33333", null, null}, secondRecordValues);
 
-            final Object[] thirdRecordValues = reader.nextRecord(schema);
+            final Object[] thirdRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {3, "Jake Doe", 4751.89, "124 My Street", "My City", "MS", "11111", "USA", "Apt. #12"}, thirdRecordValues);
 
             assertNull(reader.nextRecord(schema));
@@ -221,7 +217,7 @@ public class TestFlatJsonRowRecordReader {
             final FlatJsonRowRecordReader reader = new FlatJsonRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
 
             final RecordSchema schema = reader.getSchema();
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
 
             final Object secondValue = firstRecordValues[1];
             assertTrue(secondValue instanceof Long);
@@ -229,6 +225,8 @@ public class TestFlatJsonRowRecordReader {
 
             final Object unicodeValue = firstRecordValues[2];
             assertEquals("\u3061\u3083\u6ce3\u304d\u305d\u3046", unicodeValue);
+
+            assertNull(reader.nextRecord(schema));
         }
 
     }

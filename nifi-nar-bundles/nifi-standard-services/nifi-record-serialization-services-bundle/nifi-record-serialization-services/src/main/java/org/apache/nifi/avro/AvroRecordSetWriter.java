@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.nifi.json;
+package org.apache.nifi.avro;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.avro.Schema;
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.annotation.lifecycle.OnEnabled;
@@ -27,38 +28,36 @@ import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.controller.ConfigurationContext;
 import org.apache.nifi.logging.ComponentLog;
-import org.apache.nifi.serialization.ResultSetWriter;
-import org.apache.nifi.serialization.ResultSetWriterFactory;
+import org.apache.nifi.serialization.RecordSetWriter;
+import org.apache.nifi.serialization.RecordSetWriterFactory;
 
-@Tags({"json", "resultset", "writer", "serialize", "record", "row"})
-@CapabilityDescription("Writes the results of a Database ResultSet as a JSON Array. Even if the ResultSet "
-    + "consists of a single row, it will be written as an array with a single element.")
-public class JsonResultSetWriter extends AbstractControllerService implements ResultSetWriterFactory {
-
-    static final PropertyDescriptor PRETTY_PRINT_JSON = new PropertyDescriptor.Builder()
-        .name("Pretty Print JSON")
-        .description("Specifies whether or not the JSON should be pretty printed")
+@Tags({"avro", "result", "set", "writer", "serializer", "record", "row"})
+@CapabilityDescription("Writes the contents of a Database ResultSet in Binary Avro format. The data types in the Result Set must match those "
+    + "specified by the Avro Schema. No type coercion will occur. In addition, the label of the column must be a valid Avro field name.")
+public class AvroRecordSetWriter extends AbstractControllerService implements RecordSetWriterFactory {
+    static final PropertyDescriptor SCHEMA = new PropertyDescriptor.Builder()
+        .name("Avro Schema")
+        .description("The Avro Schema to use when writing out the Result Set")
+        .addValidator(new AvroSchemaValidator())
         .expressionLanguageSupported(false)
-        .allowableValues("true", "false")
-        .defaultValue("false")
         .required(true)
         .build();
 
-    private boolean prettyPrint;
+    private volatile Schema schema;
 
     @Override
     protected List<PropertyDescriptor> getSupportedPropertyDescriptors() {
-        return Collections.singletonList(PRETTY_PRINT_JSON);
+        return Arrays.asList(SCHEMA);
     }
 
     @OnEnabled
-    public void onEnabled(final ConfigurationContext context) {
-        prettyPrint = context.getProperty(PRETTY_PRINT_JSON).asBoolean();
+    public void storePropertyValues(final ConfigurationContext context) {
+        schema = new Schema.Parser().parse(context.getProperty(SCHEMA).getValue());
     }
 
     @Override
-    public ResultSetWriter createWriter(final ComponentLog logger) {
-        return new WriteJsonResult(prettyPrint);
+    public RecordSetWriter createWriter(final ComponentLog logger) {
+        return new WriteAvroResult(schema);
     }
 
 }

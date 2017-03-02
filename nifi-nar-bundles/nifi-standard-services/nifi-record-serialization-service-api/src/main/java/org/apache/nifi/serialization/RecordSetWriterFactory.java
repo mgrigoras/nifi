@@ -15,23 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.nifi.csv;
+package org.apache.nifi.serialization;
 
-import org.apache.nifi.annotation.documentation.CapabilityDescription;
-import org.apache.nifi.annotation.documentation.Tags;
-import org.apache.nifi.controller.AbstractControllerService;
+import org.apache.nifi.controller.ControllerService;
 import org.apache.nifi.logging.ComponentLog;
-import org.apache.nifi.serialization.ResultSetWriter;
-import org.apache.nifi.serialization.ResultSetWriterFactory;
 
-@Tags({"csv", "result", "set", "writer", "serializer", "record", "row"})
-@CapabilityDescription("Writes the contents of a Database ResultSet as CSV data. The first line written "
-    + "will be the column names. All subsequent lines will be the values corresponding to those columns.")
-public class CSVResultSetWriter extends AbstractControllerService implements ResultSetWriterFactory {
-
-    @Override
-    public ResultSetWriter createWriter(final ComponentLog logger) {
-        return new WriteCSVResult();
-    }
-
+/**
+ * <p>
+ * A Controller Service that is responsible for creating a {@link RecordSetWriter}.
+ * </p>
+ */
+public interface RecordSetWriterFactory extends ControllerService {
+    RecordSetWriter createWriter(ComponentLog logger);
 }

@@ -38,13 +38,13 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
-import org.apache.nifi.serialization.ResultSetWriter;
+import org.apache.nifi.serialization.RecordSetWriter;
 import org.apache.nifi.serialization.WriteResult;
 import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordSchema;
 import org.apache.nifi.serialization.record.RecordSet;
 
-public class WriteAvroResult implements ResultSetWriter {
+public class WriteAvroResult implements RecordSetWriter {
     private final Schema schema;
 
     public WriteAvroResult(final Schema schema) {

@@ -26,13 +26,13 @@ import java.util.Map;
 
 import org.apache.nifi.components.PropertyValue;
 import org.apache.nifi.processor.exception.ProcessException;
-import org.apache.nifi.serialization.ResultSetWriter;
+import org.apache.nifi.serialization.RecordSetWriter;
 import org.apache.nifi.serialization.WriteResult;
 import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordSchema;
 import org.apache.nifi.serialization.record.RecordSet;
 
-public class FreeFormTextWriter implements ResultSetWriter {
+public class FreeFormTextWriter implements RecordSetWriter {
     private static final byte NEW_LINE = (byte) '\n';
     private final PropertyValue propertyValue;
     private final Charset charset;

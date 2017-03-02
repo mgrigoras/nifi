@@ -78,14 +78,13 @@ public class TestJsonPathRowRecordReader {
                 RecordFieldType.DOUBLE, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {1, "John Doe", 4750.89, "123 My Street", "My City", "MS", "11111", "USA"}, firstRecordValues);
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
+            final Object[] secondRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {2, "Jane Doe", 4820.09, "321 Your Street", "Your City", "NY", "33333", "USA"}, secondRecordValues);
 
-            final Object[] thirdRecordValues = reader.nextRecord(schema);
-            assertNull(thirdRecordValues);
+            assertNull(reader.nextRecord(schema));
         }
     }
 
@@ -105,11 +104,10 @@ public class TestJsonPathRowRecordReader {
                 RecordFieldType.DOUBLE, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {1, "John Doe", 4750.89, "123 My Street", "My City", "MS", "11111", "USA"}, firstRecordValues);
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
-            assertNull(secondRecordValues);
+            assertNull(reader.nextRecord(schema));
         }
     }
 
@@ -134,7 +132,7 @@ public class TestJsonPathRowRecordReader {
                 RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.RECORD});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
             final Object[] simpleElements = Arrays.copyOfRange(firstRecordValues, 0, firstRecordValues.length - 1);
             Assert.assertArrayEquals(new Object[] {1, "John Doe", null, "123 My Street", "My City", "MS", "11111", "USA"}, simpleElements);
 
@@ -144,8 +142,7 @@ public class TestJsonPathRowRecordReader {
             assertEquals(42, map.get("id"));
             assertEquals(4750.89D, map.get("balance"));
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
-            assertNull(secondRecordValues);
+            assertNull(reader.nextRecord(schema));
         }
     }
 
@@ -169,7 +166,7 @@ public class TestJsonPathRowRecordReader {
                 RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.ARRAY});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
             final Object[] nonArrayValues = Arrays.copyOfRange(firstRecordValues, 0, firstRecordValues.length - 1);
             Assert.assertArrayEquals(new Object[] {1, "John Doe", null, "123 My Street", "My City", "MS", "11111", "USA"}, nonArrayValues);
 
@@ -191,8 +188,7 @@ public class TestJsonPathRowRecordReader {
             assertEquals(43, secondMap.get("id"));
             assertEquals(48212.38D, secondMap.get("balance"));
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
-            assertNull(secondRecordValues);
+            assertNull(reader.nextRecord(schema));
         }
     }
 
@@ -212,13 +208,13 @@ public class TestJsonPathRowRecordReader {
                 RecordFieldType.DOUBLE, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {1, "John Doe", 4750.89, "123 My Street", "My City", "MS", "11111", "USA"}, firstRecordValues);
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
+            final Object[] secondRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {2, "Jane Doe", 4820.09, "321 Your Street", "Your City", "NY", "33333", null}, secondRecordValues);
 
-            final Object[] thirdRecordValues = reader.nextRecord(schema);
+            final Object[] thirdRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {3, "Jake Doe", 4751.89, "124 My Street", "My City", "MS", "11111", "USA"}, thirdRecordValues);
 
             assertNull(reader.nextRecord(schema));
@@ -244,13 +240,13 @@ public class TestJsonPathRowRecordReader {
                 RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {1, "John Doe", 4750.89, "123 My Street", "My City", "MS", "11111", "USA", null}, firstRecordValues);
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
+            final Object[] secondRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {2, "Jane Doe", 4820.09, "321 Your Street", "Your City", "NY", "33333", null, null}, secondRecordValues);
 
-            final Object[] thirdRecordValues = reader.nextRecord(schema);
+            final Object[] thirdRecordValues = reader.nextRecord(schema).getValues();
             Assert.assertArrayEquals(new Object[] {3, "Jake Doe", 4751.89, "124 My Street", "My City", "MS", "11111", "USA", "Apt. #12"}, thirdRecordValues);
 
             assertNull(reader.nextRecord(schema));
@@ -276,7 +272,7 @@ public class TestJsonPathRowRecordReader {
                 RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.ARRAY});
             assertEquals(expectedTypes, dataTypes);
 
-            final Object[] firstRecordValues = reader.nextRecord(schema);
+            final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
 
             final Object[] nonArrayValues = Arrays.copyOfRange(firstRecordValues, 0, firstRecordValues.length - 1);
             Assert.assertArrayEquals(new Object[] {1, "John Doe", 4750.89D, "123 My Street", "My City", "MS", "11111", "USA"}, nonArrayValues);
@@ -288,9 +284,7 @@ public class TestJsonPathRowRecordReader {
             final Object[] array = (Object[]) lastRecord;
             Assert.assertArrayEquals(new Object[] {1, 2, 3}, array);
 
-            final Object[] secondRecordValues = reader.nextRecord(schema);
-            assertNull(secondRecordValues);
-
+            assertNull(reader.nextRecord(schema));
             assertNull(reader.nextRecord(schema));
         }
     }

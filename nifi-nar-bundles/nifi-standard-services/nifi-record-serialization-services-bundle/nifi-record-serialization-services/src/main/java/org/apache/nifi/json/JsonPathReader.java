@@ -38,7 +38,7 @@ import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.controller.ConfigurationContext;
 import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RowRecordReader;
+import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
 import org.apache.nifi.serialization.record.DataType;
 
@@ -119,7 +119,7 @@ public class JsonPathReader extends AbstractControllerService implements RowReco
     }
 
     @Override
-    public RowRecordReader createRecordReader(final InputStream in, final ComponentLog logger) throws IOException, MalformedRecordException {
+    public RecordReader createRecordReader(final InputStream in, final ComponentLog logger) throws IOException, MalformedRecordException {
         return new JsonPathRowRecordReader(jsonPaths, fieldTypeOverrides, in, logger);
     }
 

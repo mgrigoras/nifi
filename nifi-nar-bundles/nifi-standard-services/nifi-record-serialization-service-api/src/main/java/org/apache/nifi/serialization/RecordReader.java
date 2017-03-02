@@ -20,6 +20,7 @@ package org.apache.nifi.serialization;
 import java.io.Closeable;
 import java.io.IOException;
 
+import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordSchema;
 
 /**
@@ -33,7 +34,7 @@ import org.apache.nifi.serialization.record.RecordSchema;
  * manner between minor or incremental releases of NiFi.
  * </p>
  */
-public interface RowRecordReader extends Closeable {
+public interface RecordReader extends Closeable {
 
     /**
      * Returns the next record in the stream or <code>null</code> if no more records are available.
@@ -44,7 +45,7 @@ public interface RowRecordReader extends Closeable {
      * @throws IOException if unable to read from the underlying data
      * @throws MalformedRecordException if an unrecoverable failure occurs when trying to parse a record
      */
-    Object[] nextRecord(RecordSchema schema) throws IOException, MalformedRecordException;
+    Record nextRecord(RecordSchema schema) throws IOException, MalformedRecordException;
 
     /**
      * @return a RecordSchema that is appropriate for the records in the stream

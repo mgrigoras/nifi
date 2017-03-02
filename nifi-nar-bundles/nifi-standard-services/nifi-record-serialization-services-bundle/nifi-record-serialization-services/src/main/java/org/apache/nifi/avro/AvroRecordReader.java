@@ -31,21 +31,22 @@ import org.apache.avro.Schema.Type;
 import org.apache.avro.file.DataFileStream;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericData.Array;
-import org.apache.avro.generic.GenericData.Record;
 import org.apache.avro.generic.GenericData.StringType;
 import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericFixed;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RowRecordReader;
+import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.SimpleRecordSchema;
 import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.ObjectArrayRecord;
+import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordField;
 import org.apache.nifi.serialization.record.RecordFieldType;
 import org.apache.nifi.serialization.record.RecordSchema;
 
-public class AvroRecordReader implements RowRecordReader {
+public class AvroRecordReader implements RecordReader {
     private final InputStream in;
     private final Schema schema;
     private final DataFileStream<GenericRecord> dataFileStream;
@@ -65,7 +66,7 @@ public class AvroRecordReader implements RowRecordReader {
     }
 
     @Override
-    public Object[] nextRecord(final RecordSchema schema) throws IOException, MalformedRecordException {
+    public Record nextRecord(final RecordSchema schema) throws IOException, MalformedRecordException {
         if (!dataFileStream.hasNext()) {
             return null;
         }
@@ -75,7 +76,8 @@ public class AvroRecordReader implements RowRecordReader {
             record = dataFileStream.next();
         }
 
-        return convertRecordToObjectArray(record, schema);
+        final Object[] values = convertRecordToObjectArray(record, schema);
+        return new ObjectArrayRecord(schema, values);
     }
 
 
@@ -119,13 +121,13 @@ public class AvroRecordReader implements RowRecordReader {
 
         switch (avroSchema.getType()) {
             case UNION:
-                if (value instanceof Record) {
-                    final Record record = (Record) value;
+                if (value instanceof GenericData.Record) {
+                    final GenericData.Record record = (GenericData.Record) value;
                     return convertValue(value, record.getSchema(), fieldName, desiredType);
                 }
                 break;
             case RECORD:
-                final Record record = (Record) value;
+                final GenericData.Record record = (GenericData.Record) value;
                 final Schema recordSchema = record.getSchema();
                 final List<Field> recordFields = recordSchema.getFields();
                 final Map<String, Object> values = new HashMap<>(recordFields.size());

@@ -22,7 +22,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Collections;
 
-import org.apache.nifi.serialization.ResultSetWriter;
+import org.apache.nifi.serialization.RecordSetWriter;
 import org.apache.nifi.serialization.WriteResult;
 import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordSchema;
@@ -30,7 +30,7 @@ import org.apache.nifi.serialization.record.RecordSet;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class WriteCSVResult implements ResultSetWriter {
+public class WriteCSVResult implements RecordSetWriter {
 
     @Override
     public WriteResult write(final RecordSet rs, final OutputStream out) throws IOException {

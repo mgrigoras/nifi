@@ -55,7 +55,7 @@ public class TestCSVRecordReader {
             final RecordSchema schema = reader.getSchema();
             verifyFields(schema);
 
-            final Object[] record = reader.nextRecord(schema);
+            final Object[] record = reader.nextRecord(schema).getValues();
             final Object[] expectedValues = new Object[] {"1", "John Doe", 4750.89D, "123 My Street", "My City", "MS", "11111", "USA"};
             Assert.assertArrayEquals(expectedValues, record);
 
@@ -74,11 +74,11 @@ public class TestCSVRecordReader {
             final RecordSchema schema = reader.getSchema();
             verifyFields(schema);
 
-            final Object[] firstRecord = reader.nextRecord(schema);
+            final Object[] firstRecord = reader.nextRecord(schema).getValues();
             final Object[] firstExpectedValues = new Object[] {"1", "John Doe", 4750.89D, "123 My Street", "My City", "MS", "11111", "USA"};
             Assert.assertArrayEquals(firstExpectedValues, firstRecord);
 
-            final Object[] secondRecord = reader.nextRecord(schema);
+            final Object[] secondRecord = reader.nextRecord(schema).getValues();
             final Object[] secondExpectedValues = new Object[] {"2", "Jane Doe", 4820.09D, "321 Your Street", "Your City", "NY", "33333", "USA"};
             Assert.assertArrayEquals(secondExpectedValues, secondRecord);
 
@@ -97,11 +97,11 @@ public class TestCSVRecordReader {
             final RecordSchema schema = reader.getSchema();
             verifyFields(schema);
 
-            final Object[] firstRecord = reader.nextRecord(schema);
+            final Object[] firstRecord = reader.nextRecord(schema).getValues();
             final Object[] firstExpectedValues = new Object[] {"1", "John Doe", 4750.89D, "123 My Street", "My City", "MS", "11111", "USA"};
             Assert.assertArrayEquals(firstExpectedValues, firstRecord);
 
-            final Object[] secondRecord = reader.nextRecord(schema);
+            final Object[] secondRecord = reader.nextRecord(schema).getValues();
             final Object[] secondExpectedValues = new Object[] {"2", "Jane Doe", 4820.09D, "321 Your Street", "Your City", "NY", "33333", "USA"};
             Assert.assertArrayEquals(secondExpectedValues, secondRecord);
 

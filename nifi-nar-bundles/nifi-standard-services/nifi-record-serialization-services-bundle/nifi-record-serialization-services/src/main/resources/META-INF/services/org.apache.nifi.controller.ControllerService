@@ -14,15 +14,15 @@
 # limitations under the License.
 
 org.apache.nifi.avro.AvroReader
-org.apache.nifi.avro.AvroResultSetWriter
+org.apache.nifi.avro.AvroRecordSetWriter
 
 org.apache.nifi.json.FlatJsonReader
 org.apache.nifi.json.JsonPathReader
-org.apache.nifi.json.JsonResultSetWriter
+org.apache.nifi.json.JsonRecordSetWriter
 
 org.apache.nifi.csv.CSVReader
-org.apache.nifi.csv.CSVResultSetWriter
+org.apache.nifi.csv.CSVRecordSetWriter
 
 org.apache.nifi.grok.GrokReader
 
-org.apache.nifi.text.FreeFormTextResultSetWriter
+org.apache.nifi.text.FreeFormTextRecordSetWriter

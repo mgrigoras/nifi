@@ -29,12 +29,13 @@ import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.reporting.InitializationException;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.ResultSetWriter;
-import org.apache.nifi.serialization.ResultSetWriterFactory;
-import org.apache.nifi.serialization.RowRecordReader;
+import org.apache.nifi.serialization.RecordSetWriter;
+import org.apache.nifi.serialization.RecordSetWriterFactory;
+import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
 import org.apache.nifi.serialization.SimpleRecordSchema;
 import org.apache.nifi.serialization.WriteResult;
+import org.apache.nifi.serialization.record.ObjectArrayRecord;
 import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordField;
 import org.apache.nifi.serialization.record.RecordFieldType;
@@ -222,7 +223,7 @@ public class TestQueryFlowFile {
     }
 
 
-    private static class ResultSetValidatingRecordWriter extends AbstractControllerService implements ResultSetWriterFactory {
+    private static class ResultSetValidatingRecordWriter extends AbstractControllerService implements RecordSetWriterFactory {
         private final List<String> columnNames;
 
         public ResultSetValidatingRecordWriter(final List<String> colNames) {
@@ -230,8 +231,8 @@ public class TestQueryFlowFile {
         }
 
         @Override
-        public ResultSetWriter createWriter(ComponentLog logger) {
-            return new ResultSetWriter() {
+        public RecordSetWriter createWriter(ComponentLog logger) {
+            return new RecordSetWriter() {
                 @Override
                 public WriteResult write(final RecordSet rs, final OutputStream out) throws IOException {
                     final int colCount = rs.getSchema().getFieldCount();
@@ -256,7 +257,7 @@ public class TestQueryFlowFile {
 
     }
 
-    private static class MockRecordWriter extends AbstractControllerService implements ResultSetWriterFactory {
+    private static class MockRecordWriter extends AbstractControllerService implements RecordSetWriterFactory {
         private final String header;
 
         public MockRecordWriter(final String header) {
@@ -264,8 +265,8 @@ public class TestQueryFlowFile {
         }
 
         @Override
-        public ResultSetWriter createWriter(final ComponentLog logger) {
-            return new ResultSetWriter() {
+        public RecordSetWriter createWriter(final ComponentLog logger) {
+            return new RecordSetWriter() {
                 @Override
                 public WriteResult write(final RecordSet rs, final OutputStream out) throws IOException {
                     out.write(header.getBytes());
@@ -323,10 +324,10 @@ public class TestQueryFlowFile {
         }
 
         @Override
-        public RowRecordReader createRecordReader(InputStream in, ComponentLog logger) throws IOException {
+        public RecordReader createRecordReader(InputStream in, ComponentLog logger) throws IOException {
             final Iterator<Object[]> itr = records.iterator();
 
-            return new RowRecordReader() {
+            return new RecordReader() {
                 private int recordCount = 0;
 
                 @Override
@@ -334,7 +335,7 @@ public class TestQueryFlowFile {
                 }
 
                 @Override
-                public Object[] nextRecord(RecordSchema schema) throws IOException, MalformedRecordException {
+                public Record nextRecord(RecordSchema schema) throws IOException, MalformedRecordException {
                     if (failAfterN >= recordCount) {
                         throw new MalformedRecordException("Intentional Unit Test Exception because " + recordCount + " records have been read");
                     }
@@ -343,7 +344,9 @@ public class TestQueryFlowFile {
                     if (!itr.hasNext()) {
                         return null;
                     }
-                    return itr.next();
+
+                    final Object[] values = itr.next();
+                    return new ObjectArrayRecord(new SimpleRecordSchema(fields), values);
                 }
 
                 @Override

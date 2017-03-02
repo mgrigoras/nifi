@@ -26,7 +26,7 @@ import org.apache.nifi.annotation.documentation.SeeAlso;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RowRecordReader;
+import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
 import org.apache.nifi.serialization.UserTypeOverrideRowReader;
 
@@ -50,7 +50,7 @@ import org.apache.nifi.serialization.UserTypeOverrideRowReader;
 public class FlatJsonReader extends UserTypeOverrideRowReader implements RowRecordReaderFactory {
 
     @Override
-    public RowRecordReader createRecordReader(final InputStream in, final ComponentLog logger) throws IOException, MalformedRecordException {
+    public RecordReader createRecordReader(final InputStream in, final ComponentLog logger) throws IOException, MalformedRecordException {
         return new FlatJsonRowRecordReader(in, logger, getFieldTypeOverrides());
     }
 }
