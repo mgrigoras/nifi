@@ -20,9 +20,6 @@ package org.apache.nifi.text;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +28,9 @@ import org.apache.nifi.components.PropertyValue;
 import org.apache.nifi.processor.exception.ProcessException;
 import org.apache.nifi.serialization.ResultSetWriter;
 import org.apache.nifi.serialization.WriteResult;
+import org.apache.nifi.serialization.record.Record;
+import org.apache.nifi.serialization.record.RecordSchema;
+import org.apache.nifi.serialization.record.RecordSet;
 
 public class FreeFormTextWriter implements ResultSetWriter {
     private static final byte NEW_LINE = (byte) '\n';
@@ -43,24 +43,25 @@ public class FreeFormTextWriter implements ResultSetWriter {
     }
 
     @Override
-    public WriteResult write(final ResultSet resultSet, final OutputStream out) throws IOException {
+    public WriteResult write(final RecordSet recordSet, final OutputStream out) throws IOException {
         int count = 0;
 
         try {
-            final ResultSetMetaData metadata = resultSet.getMetaData();
-            final int numCols = metadata.getColumnCount();
+            final RecordSchema schema = recordSet.getSchema();
+            final int numCols = schema.getFieldCount();
             final String[] columnNames = new String[numCols];
             for (int i = 0; i < numCols; i++) {
-                columnNames[i] = metadata.getColumnLabel(i + 1);
+                columnNames[i] = schema.getField(i).getFieldName();
             }
 
-            while (resultSet.next()) {
+            Record record;
+            while ((record = recordSet.next()) != null) {
                 count++;
 
                 final Map<String, String> values = new HashMap<>(numCols);
                 for (int i = 0; i < numCols; i++) {
                     final String columnName = columnNames[i];
-                    final String columnValue = resultSet.getString(i + 1);
+                    final String columnValue = record.getAsString(i);
                     values.put(columnName, columnValue);
                 }
 
@@ -68,7 +69,7 @@ public class FreeFormTextWriter implements ResultSetWriter {
                 out.write(evaluated.getBytes(charset));
                 out.write(NEW_LINE);
             }
-        } catch (final SQLException e) {
+        } catch (final Exception e) {
             throw new ProcessException(e);
         }
 

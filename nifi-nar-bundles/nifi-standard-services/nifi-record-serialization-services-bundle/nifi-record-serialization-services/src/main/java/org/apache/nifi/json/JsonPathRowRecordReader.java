@@ -33,12 +33,12 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.nifi.logging.ComponentLog;
-import org.apache.nifi.serialization.DataType;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RecordField;
-import org.apache.nifi.serialization.RecordFieldType;
-import org.apache.nifi.serialization.RecordSchema;
 import org.apache.nifi.serialization.SimpleRecordSchema;
+import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.RecordField;
+import org.apache.nifi.serialization.record.RecordFieldType;
+import org.apache.nifi.serialization.record.RecordSchema;
 import org.codehaus.jackson.JsonNode;
 
 import com.jayway.jsonpath.Configuration;
@@ -148,7 +148,7 @@ public class JsonPathRowRecordReader extends AbstractJsonRowRecordReader {
 
             if (value != null) {
                 final RecordFieldType determinedType = determineFieldType(value);
-                final DataType desiredType = schema.getDataType(entry.getKey());
+                final DataType desiredType = schema.getDataType(entry.getKey()).orElse(null);
 
                 if (value instanceof List) {
                     value = ((List<Object>) value).toArray();
@@ -166,7 +166,7 @@ public class JsonPathRowRecordReader extends AbstractJsonRowRecordReader {
     private boolean shouldConvert(final Object value, final RecordFieldType determinedType) {
         return determinedType != null
             && determinedType != RecordFieldType.ARRAY
-            && determinedType != RecordFieldType.OBJECT
+            && determinedType != RecordFieldType.RECORD
             && !(value instanceof Map);
     }
 
@@ -217,7 +217,7 @@ public class JsonPathRowRecordReader extends AbstractJsonRowRecordReader {
             return RecordFieldType.ARRAY;
         }
 
-        return RecordFieldType.OBJECT;
+        return RecordFieldType.RECORD;
     }
 
     /**

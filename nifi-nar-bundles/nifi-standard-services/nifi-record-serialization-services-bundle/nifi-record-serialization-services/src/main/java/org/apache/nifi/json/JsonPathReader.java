@@ -37,10 +37,10 @@ import org.apache.nifi.components.ValidationResult;
 import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.controller.ConfigurationContext;
 import org.apache.nifi.logging.ComponentLog;
-import org.apache.nifi.serialization.DataType;
 import org.apache.nifi.serialization.MalformedRecordException;
 import org.apache.nifi.serialization.RowRecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
+import org.apache.nifi.serialization.record.DataType;
 
 import com.jayway.jsonpath.JsonPath;
 

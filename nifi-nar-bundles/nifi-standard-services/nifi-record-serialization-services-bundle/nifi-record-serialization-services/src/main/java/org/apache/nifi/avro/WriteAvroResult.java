@@ -25,8 +25,6 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,12 +35,14 @@ import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericData.Record;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
 import org.apache.nifi.serialization.ResultSetWriter;
 import org.apache.nifi.serialization.WriteResult;
+import org.apache.nifi.serialization.record.Record;
+import org.apache.nifi.serialization.record.RecordSchema;
+import org.apache.nifi.serialization.record.RecordSet;
 
 public class WriteAvroResult implements ResultSetWriter {
     private final Schema schema;
@@ -52,8 +52,9 @@ public class WriteAvroResult implements ResultSetWriter {
     }
 
     @Override
-    public WriteResult write(final ResultSet rs, final OutputStream outStream) throws IOException, SQLException {
-        if (!rs.next()) {
+    public WriteResult write(final RecordSet rs, final OutputStream outStream) throws IOException, SQLException {
+        Record record = rs.next();
+        if (record == null) {
             return WriteResult.of(0, Collections.emptyMap());
         }
 
@@ -64,12 +65,14 @@ public class WriteAvroResult implements ResultSetWriter {
         try (final DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter)) {
             dataFileWriter.create(schema, outStream);
 
-            final ResultSetMetaData meta = rs.getMetaData();
-            final int nrOfColumns = meta.getColumnCount();
+            final RecordSchema recordSchema = rs.getSchema();
+            final int numCols = recordSchema.getFieldCount();
+
             do {
-                for (int i = 1; i <= nrOfColumns; i++) {
-                    final Object value = rs.getObject(i);
-                    final String fieldName = getFieldName(rs.getMetaData().getColumnLabel(i), rs.getMetaData().getColumnName(i));
+                for (int i = 0; i < numCols; i++) {
+                    final Object value = record.getValue(i);
+                    final String fieldName = recordSchema.getField(i).getFieldName();
+
                     final Field field = schema.getField(fieldName);
                     if (field == null) {
                         continue;
@@ -81,7 +84,7 @@ public class WriteAvroResult implements ResultSetWriter {
 
                 dataFileWriter.append(rec);
                 nrOfRows++;
-            } while (rs.next());
+            } while ((record = rs.next()) != null);
         }
 
         return WriteResult.of(nrOfRows, Collections.emptyMap());
@@ -164,7 +167,7 @@ public class WriteAvroResult implements ResultSetWriter {
                 case MAP:
                     return value;
                 case RECORD:
-                    final Record record = new GenericData.Record(schema);
+                    final GenericData.Record record = new GenericData.Record(schema);
 
                     final Map<?, ?> map = (Map<?, ?>) value;
                     for (final Map.Entry<?, ?> entry : map.entrySet()) {
@@ -204,9 +207,6 @@ public class WriteAvroResult implements ResultSetWriter {
         return value.toString();
     }
 
-    private String getFieldName(final String label, final String colName) {
-        return label == null ? colName : label;
-    }
 
     @Override
     public String getMimeType() {

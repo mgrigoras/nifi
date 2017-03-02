@@ -33,10 +33,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.nifi.logging.ComponentLog;
-import org.apache.nifi.serialization.DataType;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RecordFieldType;
-import org.apache.nifi.serialization.RecordSchema;
+import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.RecordFieldType;
+import org.apache.nifi.serialization.record.RecordSchema;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -107,7 +107,7 @@ public class TestFlatJsonRowRecordReader {
 
             final List<RecordFieldType> dataTypes = schema.getDataTypes().stream().map(dt -> dt.getFieldType()).collect(Collectors.toList());
             final List<RecordFieldType> expectedTypes = Arrays.asList(new RecordFieldType[] {RecordFieldType.INT, RecordFieldType.STRING,
-                RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.OBJECT});
+                RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.RECORD});
             assertEquals(expectedTypes, dataTypes);
 
             final Object[] firstRecordValues = reader.nextRecord(schema);

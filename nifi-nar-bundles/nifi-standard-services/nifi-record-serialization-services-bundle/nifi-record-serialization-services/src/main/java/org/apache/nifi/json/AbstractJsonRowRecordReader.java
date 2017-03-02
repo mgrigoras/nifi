@@ -30,11 +30,11 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 import org.apache.nifi.logging.ComponentLog;
-import org.apache.nifi.serialization.DataType;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RecordFieldType;
-import org.apache.nifi.serialization.RecordSchema;
 import org.apache.nifi.serialization.RowRecordReader;
+import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.RecordFieldType;
+import org.apache.nifi.serialization.record.RecordSchema;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
@@ -122,10 +122,10 @@ public abstract class AbstractJsonRowRecordReader implements RowRecordReader {
             return RecordFieldType.ARRAY;
         }
         if (node.isObject()) {
-            return RecordFieldType.OBJECT;
+            return RecordFieldType.RECORD;
         }
 
-        return RecordFieldType.OBJECT;
+        return RecordFieldType.RECORD;
     }
 
 
@@ -217,7 +217,7 @@ public abstract class AbstractJsonRowRecordReader implements RowRecordReader {
 
                 return arrayElements;
             }
-            case OBJECT: {
+            case RECORD: {
                 if (fieldNode.isObject()) {
                     final ObjectNode objectNode = (ObjectNode) fieldNode;
                     final Iterator<Map.Entry<String, JsonNode>> childItr = objectNode.getFields();

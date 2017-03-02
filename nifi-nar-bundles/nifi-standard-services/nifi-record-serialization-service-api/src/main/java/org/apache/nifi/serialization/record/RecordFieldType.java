@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nifi.serialization;
+package org.apache.nifi.serialization.record;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +34,7 @@ public enum RecordFieldType {
     DATE("date", "yyyy-MM-dd"),
     TIME("time", "HH:mm:ss"),
     TIMESTAMP("timestamp", "yyyy-MM-dd HH:mm:ss"),
-    OBJECT("object"),
+    RECORD("record"),
     ARRAY("array");
 
 

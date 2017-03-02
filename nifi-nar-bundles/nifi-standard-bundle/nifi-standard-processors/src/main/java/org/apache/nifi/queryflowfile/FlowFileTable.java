@@ -44,12 +44,12 @@ import org.apache.nifi.flowfile.FlowFile;
 import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.processor.ProcessSession;
 import org.apache.nifi.processor.exception.ProcessException;
-import org.apache.nifi.serialization.DataType;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RecordField;
-import org.apache.nifi.serialization.RecordSchema;
 import org.apache.nifi.serialization.RowRecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
+import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.RecordField;
+import org.apache.nifi.serialization.record.RecordSchema;
 
 
 public class FlowFileTable<S, E> extends AbstractTable implements QueryableTable, TranslatableTable {
@@ -189,7 +189,7 @@ public class FlowFileTable<S, E> extends AbstractTable implements QueryableTable
                 return typeFactory.createJavaType(String.class);
             case ARRAY:
                 return typeFactory.createJavaType(Object[].class);
-            case OBJECT:
+            case RECORD:
                 return typeFactory.createJavaType(Object.class);
         }
 

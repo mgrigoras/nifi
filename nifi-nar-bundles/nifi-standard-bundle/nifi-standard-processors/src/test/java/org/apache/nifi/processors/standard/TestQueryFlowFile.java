@@ -19,8 +19,6 @@ package org.apache.nifi.processors.standard;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,15 +29,17 @@ import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.reporting.InitializationException;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RecordField;
-import org.apache.nifi.serialization.RecordFieldType;
-import org.apache.nifi.serialization.RecordSchema;
 import org.apache.nifi.serialization.ResultSetWriter;
 import org.apache.nifi.serialization.ResultSetWriterFactory;
 import org.apache.nifi.serialization.RowRecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
 import org.apache.nifi.serialization.SimpleRecordSchema;
 import org.apache.nifi.serialization.WriteResult;
+import org.apache.nifi.serialization.record.Record;
+import org.apache.nifi.serialization.record.RecordField;
+import org.apache.nifi.serialization.record.RecordFieldType;
+import org.apache.nifi.serialization.record.RecordSchema;
+import org.apache.nifi.serialization.record.RecordSet;
 import org.apache.nifi.util.MockFlowFile;
 import org.apache.nifi.util.TestRunner;
 import org.apache.nifi.util.TestRunners;
@@ -233,22 +233,16 @@ public class TestQueryFlowFile {
         public ResultSetWriter createWriter(ComponentLog logger) {
             return new ResultSetWriter() {
                 @Override
-                public WriteResult write(final ResultSet rs, final OutputStream out) throws IOException {
-                    try {
-                        final ResultSetMetaData metadata = rs.getMetaData();
+                public WriteResult write(final RecordSet rs, final OutputStream out) throws IOException {
+                    final int colCount = rs.getSchema().getFieldCount();
+                    Assert.assertEquals(columnNames.size(), colCount);
 
-                        final int colCount = metadata.getColumnCount();
-                        Assert.assertEquals(columnNames.size(), colCount);
-
-                        final List<String> colNames = new ArrayList<>(colCount);
-                        for (int i = 0; i < colCount; i++) {
-                            colNames.add(metadata.getColumnLabel(i + 1));
-                        }
-
-                        Assert.assertEquals(columnNames, colNames);
-                    } catch (SQLException e) {
-                        throw new IOException(e);
+                    final List<String> colNames = new ArrayList<>(colCount);
+                    for (int i = 0; i < colCount; i++) {
+                        colNames.add(rs.getSchema().getField(i).getFieldName());
                     }
+
+                    Assert.assertEquals(columnNames, colNames);
 
                     return WriteResult.of(0, Collections.emptyMap());
                 }
@@ -273,30 +267,26 @@ public class TestQueryFlowFile {
         public ResultSetWriter createWriter(final ComponentLog logger) {
             return new ResultSetWriter() {
                 @Override
-                public WriteResult write(final ResultSet resultSet, final OutputStream out) throws IOException {
+                public WriteResult write(final RecordSet rs, final OutputStream out) throws IOException {
                     out.write(header.getBytes());
                     out.write("\n".getBytes());
 
                     int recordCount = 0;
-                    try {
-                        final int numCols = resultSet.getMetaData().getColumnCount();
-                        while (resultSet.next()) {
-                            recordCount++;
-                            for (int i = 1; i <= numCols; i++) {
-                                final String val = resultSet.getString(i);
-                                out.write("\"".getBytes());
-                                out.write(val.getBytes());
-                                out.write("\"".getBytes());
+                    final int numCols = rs.getSchema().getFieldCount();
+                    Record record = null;
+                    while ((record = rs.next()) != null) {
+                        recordCount++;
+                        for (int i = 0; i < numCols; i++) {
+                            final String val = record.getAsString(i);
+                            out.write("\"".getBytes());
+                            out.write(val.getBytes());
+                            out.write("\"".getBytes());
 
-                                if (i < numCols) {
-                                    out.write(",".getBytes());
-                                }
+                            if (i < numCols - 1) {
+                                out.write(",".getBytes());
                             }
-                            out.write("\n".getBytes());
                         }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                        Assert.fail(e.toString());
+                        out.write("\n".getBytes());
                     }
 
                     return WriteResult.of(recordCount, Collections.emptyMap());

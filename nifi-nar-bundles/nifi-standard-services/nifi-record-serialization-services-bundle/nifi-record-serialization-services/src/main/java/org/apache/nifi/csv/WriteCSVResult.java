@@ -20,45 +20,40 @@ package org.apache.nifi.csv;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.Collections;
 
 import org.apache.nifi.serialization.ResultSetWriter;
 import org.apache.nifi.serialization.WriteResult;
+import org.apache.nifi.serialization.record.Record;
+import org.apache.nifi.serialization.record.RecordSchema;
+import org.apache.nifi.serialization.record.RecordSet;
 
 import au.com.bytecode.opencsv.CSVWriter;
-import au.com.bytecode.opencsv.ResultSetHelperService;
 
 public class WriteCSVResult implements ResultSetWriter {
 
-    private String[] getColumnLabels(final ResultSet rs) throws SQLException {
-        final ResultSetMetaData metadata = rs.getMetaData();
-        final String[] cols = new String[metadata.getColumnCount()];
-
-        for (int i = 0; i < metadata.getColumnCount(); i++) {
-            cols[i] = metadata.getColumnLabel(i + 1);
-        }
-        return cols;
-    }
-
     @Override
-    public WriteResult write(final ResultSet rs, final OutputStream out) throws IOException {
+    public WriteResult write(final RecordSet rs, final OutputStream out) throws IOException {
         int count = 0;
         try (final OutputStreamWriter streamWriter = new OutputStreamWriter(out);
             final CSVWriter writer = new CSVWriter(streamWriter)) {
 
             try {
-                ResultSetHelperService rsHelper = new ResultSetHelperService();
-                final String[] columnNames = getColumnLabels(rs);
+                final RecordSchema schema = rs.getSchema();
+                final String[] columnNames = schema.getFieldNames().toArray(new String[0]);
                 writer.writeNext(columnNames);
 
-                while (rs.next()) {
-                    writer.writeNext(rsHelper.getColumnValues(rs));
+                Record record;
+                while ((record = rs.next()) != null) {
+                    final String[] colVals = new String[schema.getFieldCount()];
+                    for (int i = 0; i < schema.getFieldCount(); i++) {
+                        colVals[i] = record.getAsString(i);
+                    }
+
+                    writer.writeNext(colVals);
                     count++;
                 }
-            } catch (final SQLException e) {
+            } catch (final Exception e) {
                 throw new IOException("Failed to serialize results", e);
             }
         }

@@ -31,7 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RecordSchema;
+import org.apache.nifi.serialization.record.RecordSchema;
 import org.junit.Test;
 
 import io.thekraken.grok.api.Grok;

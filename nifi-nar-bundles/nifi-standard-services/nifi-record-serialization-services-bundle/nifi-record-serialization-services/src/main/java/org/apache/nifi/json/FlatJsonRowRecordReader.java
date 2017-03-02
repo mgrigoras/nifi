@@ -28,12 +28,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.nifi.logging.ComponentLog;
-import org.apache.nifi.serialization.DataType;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RecordField;
-import org.apache.nifi.serialization.RecordFieldType;
-import org.apache.nifi.serialization.RecordSchema;
 import org.apache.nifi.serialization.SimpleRecordSchema;
+import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.RecordField;
+import org.apache.nifi.serialization.record.RecordFieldType;
+import org.apache.nifi.serialization.record.RecordSchema;
 import org.codehaus.jackson.JsonNode;
 
 

@@ -22,10 +22,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.sql.Array;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -34,6 +31,11 @@ import java.util.Map;
 
 import org.apache.nifi.serialization.ResultSetWriter;
 import org.apache.nifi.serialization.WriteResult;
+import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.Record;
+import org.apache.nifi.serialization.record.RecordFieldType;
+import org.apache.nifi.serialization.record.RecordSchema;
+import org.apache.nifi.serialization.record.RecordSet;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
@@ -46,7 +48,7 @@ public class WriteJsonResult implements ResultSetWriter {
     }
 
     @Override
-    public WriteResult write(final ResultSet resultSet, final OutputStream rawOut) throws IOException {
+    public WriteResult write(final RecordSet rs, final OutputStream rawOut) throws IOException {
         int count = 0;
 
         final JsonFactory factory = new JsonFactory();
@@ -63,9 +65,11 @@ public class WriteJsonResult implements ResultSetWriter {
 
             generator.writeStartArray();
 
-            while (resultSet.next()) {
+            Record record;
+            while ((record = rs.next()) != null) {
                 count++;
-                writeObject(resultSet, generator, dateFormat, timeFormat, timestampFormat, g -> g.writeStartObject(), g -> g.writeEndObject());
+                writeRecord(record, generator, dateFormat, timeFormat, timestampFormat,
+                    g -> g.writeStartObject(), g -> g.writeEndObject());
             }
 
             generator.writeEndArray();
@@ -76,34 +80,30 @@ public class WriteJsonResult implements ResultSetWriter {
         return WriteResult.of(count, Collections.emptyMap());
     }
 
-    private void writeObject(final ResultSet rs, final JsonGenerator generator, final DateFormat dateFormat, final DateFormat timeFormat, final DateFormat timestampFormat,
+    private void writeRecord(final Record record, final JsonGenerator generator, final DateFormat dateFormat, final DateFormat timeFormat, final DateFormat timestampFormat,
         final GeneratorTask startTask, final GeneratorTask endTask)
         throws JsonGenerationException, IOException, SQLException {
 
-        final ResultSetMetaData metadata = rs.getMetaData();
-
+        final RecordSchema schema = record.getSchema();
         startTask.apply(generator);
-        for (int i = 0; i < metadata.getColumnCount(); i++) {
-            final int col = i + 1;
-
-            final String fieldName = metadata.getColumnLabel(col);
-            final Object value = rs.getObject(col);
+        for (int i = 0; i < schema.getFieldCount(); i++) {
+            final String fieldName = schema.getField(i).getFieldName();
+            final Object value = record.getValue(i);
             if (value == null) {
                 generator.writeNullField(fieldName);
                 continue;
             }
 
             generator.writeFieldName(fieldName);
-            final int colType = metadata.getColumnType(col);
-
-            writeValue(generator, value, colType, i < metadata.getColumnCount() - 1, dateFormat, timeFormat, timestampFormat);
+            final DataType dataType = schema.getDataType(fieldName).get();
+            writeValue(generator, value, dataType, i < schema.getFieldCount() - 1, dateFormat, timeFormat, timestampFormat);
         }
 
         endTask.apply(generator);
     }
 
 
-    private void writeValue(final JsonGenerator generator, final Object value, final int colType, final boolean moreCols,
+    private void writeValue(final JsonGenerator generator, final Object value, final DataType dataType, final boolean moreCols,
         final DateFormat dateFormat, final DateFormat timeFormat, final DateFormat timestampFormat) throws JsonGenerationException, IOException, SQLException {
 
         if (value == null) {
@@ -111,35 +111,33 @@ public class WriteJsonResult implements ResultSetWriter {
             return;
         }
 
-        switch (colType) {
-            case Types.DATE:
+        switch (dataType.getFieldType()) {
+            case DATE:
                 generator.writeString(dateFormat.format(value.toString()));
                 break;
-            case Types.TIME:
+            case TIME:
                 generator.writeString(timeFormat.format(value.toString()));
                 break;
-            case Types.TIMESTAMP:
+            case TIMESTAMP:
                 generator.writeString(timestampFormat.format(value.toString()));
                 break;
-            case Types.DOUBLE:
+            case DOUBLE:
                 generator.writeNumber((Double) value);
                 break;
-            case Types.FLOAT:
+            case FLOAT:
                 generator.writeNumber((Float) value);
                 break;
-            case Types.INTEGER:
-            case Types.SMALLINT:
-            case Types.TINYINT:
+            case INT:
                 generator.writeNumber((Integer) value);
                 break;
-            case Types.BIGINT:
+            case BIGINT:
                 if (value instanceof Long) {
                     generator.writeNumber(((Long) value).longValue());
                 } else {
                     generator.writeNumber((BigInteger) value);
                 }
                 break;
-            case Types.BOOLEAN:
+            case BOOLEAN:
                 final String stringValue = value.toString();
                 if ("true".equalsIgnoreCase(stringValue)) {
                     generator.writeBoolean(true);
@@ -149,16 +147,11 @@ public class WriteJsonResult implements ResultSetWriter {
                     generator.writeString(stringValue);
                 }
                 break;
-            case Types.CHAR:
-            case Types.VARCHAR:
-            case Types.LONGVARCHAR:
-            case Types.NCHAR:
-            case Types.NVARCHAR:
-            case Types.LONGNVARCHAR:
+            case STRING:
                 generator.writeString(value.toString());
                 break;
-            case Types.ARRAY:
-            case Types.JAVA_OBJECT:
+            case ARRAY:
+            case RECORD:
             default:
                 if ("null".equals(value.toString())) {
                     generator.writeNull();
@@ -201,48 +194,48 @@ public class WriteJsonResult implements ResultSetWriter {
         generator.writeEndArray();
     }
 
-    private int getColType(final Object value) {
+    private DataType getColType(final Object value) {
         if (value instanceof String) {
-            return Types.LONGVARCHAR;
+            return RecordFieldType.STRING.getDataType();
         }
         if (value instanceof Double) {
-            return Types.DOUBLE;
+            return RecordFieldType.DOUBLE.getDataType();
         }
         if (value instanceof Float) {
-            return Types.FLOAT;
+            return RecordFieldType.FLOAT.getDataType();
         }
         if (value instanceof Integer) {
-            return Types.INTEGER;
+            return RecordFieldType.INT.getDataType();
         }
         if (value instanceof Long) {
-            return Types.BIGINT;
+            return RecordFieldType.LONG.getDataType();
         }
         if (value instanceof BigInteger) {
-            return Types.BIGINT;
+            return RecordFieldType.BIGINT.getDataType();
         }
         if (value instanceof Boolean) {
-            return Types.BOOLEAN;
+            return RecordFieldType.BOOLEAN.getDataType();
         }
         if (value instanceof Byte || value instanceof Short) {
-            return Types.INTEGER;
+            return RecordFieldType.INT.getDataType();
         }
         if (value instanceof Character) {
-            return Types.VARCHAR;
+            return RecordFieldType.STRING.getDataType();
         }
         if (value instanceof java.util.Date || value instanceof java.sql.Date) {
-            return Types.DATE;
+            return RecordFieldType.DATE.getDataType();
         }
         if (value instanceof java.sql.Time) {
-            return Types.TIME;
+            return RecordFieldType.TIME.getDataType();
         }
         if (value instanceof java.sql.Timestamp) {
-            return Types.TIMESTAMP;
+            return RecordFieldType.TIMESTAMP.getDataType();
         }
         if (value instanceof Object[] || value instanceof List || value instanceof Array) {
-            return Types.ARRAY;
+            return RecordFieldType.ARRAY.getDataType();
         }
 
-        return Types.OTHER;
+        return RecordFieldType.RECORD.getDataType();
     }
 
     @Override

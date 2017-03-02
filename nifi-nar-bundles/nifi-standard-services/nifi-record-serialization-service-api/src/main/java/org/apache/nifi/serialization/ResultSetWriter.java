@@ -22,6 +22,8 @@ import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.nifi.serialization.record.RecordSet;
+
 /**
  * <p>
  * A ResultSetWriter is responsible for writing a ResultSet to a given {@link OutputStream}.
@@ -44,7 +46,24 @@ public interface ResultSetWriter {
      */
     // TODO: RowRecordReader is given an InputStream as a constructor argument.
     // ResultSetWriter is given an OutputStream to write to. These should probably be consistent.
-    WriteResult write(ResultSet resultSet, OutputStream out) throws IOException, SQLException;
+    // TODO: Consider changing this API. Instead of taking a ResultSet, consider a RecordSet.
+    // RecordSet would look similar to ResultSet but would avoid a lot of the API that isn't necessary for us
+    // so that we can make it more portable.
+    // Something like:
+    // Optional<DataRecord> nextRecord();
+    // and then DataRecord would have something like:
+    // Object[] getValues();
+    // Object getValue(int index);
+    // Object getValue(String fieldName);
+    // RecordSchema getSchema();
+    // Object getValue(int index, DataType preferredDataType); -- here perhaps DataType<T> has RecordFieldType<T> and here we can return type T
+    // Object getValue(String fieldName, DataType preferredDataType); -- here perhaps DataType<T> has RecordFieldType<T> and here we can return type T
+    // RecordSchema getSchema()
+    //
+    // We then can have a ResultSetRecordSet that is backed by a ResultSet
+    // We could also have simpler model.
+    // Would make unit testing far easier, as well!
+    WriteResult write(RecordSet recordSet, OutputStream out) throws IOException, SQLException;
 
     /**
      * @return the MIME Type that the Result Set Writer produces. This will be added to FlowFiles using

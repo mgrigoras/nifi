@@ -28,7 +28,7 @@ import org.apache.nifi.processor.exception.ProcessException;
 import org.apache.nifi.serialization.MalformedRecordException;
 import org.apache.nifi.serialization.RowRecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
-import org.apache.nifi.serialization.RecordSchema;
+import org.apache.nifi.serialization.record.RecordSchema;
 
 public class FlowFileEnumerator<InternalType> implements Enumerator<Object> {
     private final ProcessSession session;

@@ -42,8 +42,8 @@ import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RecordFieldType;
-import org.apache.nifi.serialization.RecordSchema;
+import org.apache.nifi.serialization.record.RecordFieldType;
+import org.apache.nifi.serialization.record.RecordSchema;
 import org.junit.Test;
 
 public class TestAvroRecordReader {
@@ -140,21 +140,21 @@ public class TestAvroRecordReader {
             final RecordSchema recordSchema = reader.getSchema();
             assertEquals(15, recordSchema.getFieldCount());
 
-            assertEquals(RecordFieldType.STRING, recordSchema.getDataType("name").getFieldType());
-            assertEquals(RecordFieldType.INT, recordSchema.getDataType("age").getFieldType());
-            assertEquals(RecordFieldType.DOUBLE, recordSchema.getDataType("balance").getFieldType());
-            assertEquals(RecordFieldType.FLOAT, recordSchema.getDataType("rate").getFieldType());
-            assertEquals(RecordFieldType.BOOLEAN, recordSchema.getDataType("debt").getFieldType());
-            assertEquals(RecordFieldType.OBJECT, recordSchema.getDataType("nickname").getFieldType());
-            assertEquals(RecordFieldType.ARRAY, recordSchema.getDataType("binary").getFieldType());
-            assertEquals(RecordFieldType.ARRAY, recordSchema.getDataType("fixed").getFieldType());
-            assertEquals(RecordFieldType.OBJECT, recordSchema.getDataType("map").getFieldType());
-            assertEquals(RecordFieldType.ARRAY, recordSchema.getDataType("array").getFieldType());
-            assertEquals(RecordFieldType.OBJECT, recordSchema.getDataType("account").getFieldType());
-            assertEquals(RecordFieldType.DOUBLE, recordSchema.getDataType("desiredbalance").getFieldType());
-            assertEquals(RecordFieldType.DOUBLE, recordSchema.getDataType("dreambalance").getFieldType());
-            assertEquals(RecordFieldType.OBJECT, recordSchema.getDataType("favAnimal").getFieldType());
-            assertEquals(RecordFieldType.OBJECT, recordSchema.getDataType("otherFavAnimal").getFieldType());
+            assertEquals(RecordFieldType.STRING, recordSchema.getDataType("name").get().getFieldType());
+            assertEquals(RecordFieldType.INT, recordSchema.getDataType("age").get().getFieldType());
+            assertEquals(RecordFieldType.DOUBLE, recordSchema.getDataType("balance").get().getFieldType());
+            assertEquals(RecordFieldType.FLOAT, recordSchema.getDataType("rate").get().getFieldType());
+            assertEquals(RecordFieldType.BOOLEAN, recordSchema.getDataType("debt").get().getFieldType());
+            assertEquals(RecordFieldType.RECORD, recordSchema.getDataType("nickname").get().getFieldType());
+            assertEquals(RecordFieldType.ARRAY, recordSchema.getDataType("binary").get().getFieldType());
+            assertEquals(RecordFieldType.ARRAY, recordSchema.getDataType("fixed").get().getFieldType());
+            assertEquals(RecordFieldType.RECORD, recordSchema.getDataType("map").get().getFieldType());
+            assertEquals(RecordFieldType.ARRAY, recordSchema.getDataType("array").get().getFieldType());
+            assertEquals(RecordFieldType.RECORD, recordSchema.getDataType("account").get().getFieldType());
+            assertEquals(RecordFieldType.DOUBLE, recordSchema.getDataType("desiredbalance").get().getFieldType());
+            assertEquals(RecordFieldType.DOUBLE, recordSchema.getDataType("dreambalance").get().getFieldType());
+            assertEquals(RecordFieldType.RECORD, recordSchema.getDataType("favAnimal").get().getFieldType());
+            assertEquals(RecordFieldType.RECORD, recordSchema.getDataType("otherFavAnimal").get().getFieldType());
 
             final Object[] values = reader.nextRecord(recordSchema);
             assertEquals(15, values.length);

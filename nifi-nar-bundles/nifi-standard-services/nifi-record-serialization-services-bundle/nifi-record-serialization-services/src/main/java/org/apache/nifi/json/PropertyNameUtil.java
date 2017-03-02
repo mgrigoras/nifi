@@ -19,8 +19,8 @@ package org.apache.nifi.json;
 
 import java.util.Optional;
 
-import org.apache.nifi.serialization.DataType;
-import org.apache.nifi.serialization.RecordFieldType;
+import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.RecordFieldType;
 
 public class PropertyNameUtil {
 

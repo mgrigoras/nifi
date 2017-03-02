@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.nifi.serialization;
+package org.apache.nifi.serialization.record;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 public interface RecordSchema {
     /**
@@ -33,6 +35,8 @@ public interface RecordSchema {
     /**
      * @param index the 0-based index of which field to return
      * @return the index'th field
+     *
+     * @throws IndexOutOfBoundsException if the index is < 0 or >= the number of fields (determined by {@link #getFieldCount()}).
      */
     RecordField getField(int index);
 
@@ -51,5 +55,13 @@ public interface RecordSchema {
      * @return the RecordFieldType associated with the field that has the given name, or
      *         <code>null</code> if the schema does not contain a field with the given name
      */
-    DataType getDataType(String fieldName);
+    Optional<DataType> getDataType(String fieldName);
+
+    /**
+     * Returns the index of the field with the given name, or an Empty Optional if there is no field with the given name
+     *
+     * @param fieldName the name of the field
+     * @return the index of the field with the given name, or an Empty Optional if there is no field with the given name
+     */
+    OptionalInt getFieldIndex(String fieldName);
 }

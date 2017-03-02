@@ -20,6 +20,8 @@ package org.apache.nifi.serialization;
 import java.io.Closeable;
 import java.io.IOException;
 
+import org.apache.nifi.serialization.record.RecordSchema;
+
 /**
  * <p>
  * A RowRecordReader is responsible for parsing data and returning a record at a time

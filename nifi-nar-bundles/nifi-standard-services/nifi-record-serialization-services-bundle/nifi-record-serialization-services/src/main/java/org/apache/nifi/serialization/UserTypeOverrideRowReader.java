@@ -25,9 +25,9 @@ import org.apache.nifi.annotation.lifecycle.OnEnabled;
 import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.controller.ConfigurationContext;
-import org.apache.nifi.serialization.DataType;
 import org.apache.nifi.serialization.DataTypeValidator;
-import org.apache.nifi.serialization.RecordFieldType;
+import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.RecordFieldType;
 
 public abstract class UserTypeOverrideRowReader extends AbstractControllerService {
     private volatile Map<String, DataType> fieldTypeOverrides;
@@ -60,7 +60,7 @@ public abstract class UserTypeOverrideRowReader extends AbstractControllerServic
             if (splits.length == 2) {
                 final RecordFieldType fieldType = RecordFieldType.of(splits[0]);
                 final String format = splits[1];
-                dataType = new DataType(fieldType, format);
+                dataType = fieldType.getDataType(format);
             } else {
                 final RecordFieldType fieldType = RecordFieldType.of(dataTypeName);
                 dataType = fieldType.getDataType();

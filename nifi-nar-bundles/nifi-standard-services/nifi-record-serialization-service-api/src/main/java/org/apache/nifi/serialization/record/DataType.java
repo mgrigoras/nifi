@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nifi.serialization;
+package org.apache.nifi.serialization.record;
 
 public class DataType {
     private final RecordFieldType fieldType;

@@ -74,6 +74,7 @@ import org.apache.nifi.serialization.ResultSetWriter;
 import org.apache.nifi.serialization.ResultSetWriterFactory;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
 import org.apache.nifi.serialization.WriteResult;
+import org.apache.nifi.serialization.record.ResultSetRecordSet;
 import org.apache.nifi.util.StopWatch;
 
 @EventDriven
@@ -272,7 +273,8 @@ public class QueryFlowFile extends AbstractProcessor {
                         @Override
                         public void process(final OutputStream out) throws IOException {
                             try {
-                                writeResultRef.set(resultSetWriter.write(rs, out));
+                                final ResultSetRecordSet recordSet = new ResultSetRecordSet(rs);
+                                writeResultRef.set(resultSetWriter.write(recordSet, out));
                             } catch (final Exception e) {
                                 throw new IOException(e);
                             }

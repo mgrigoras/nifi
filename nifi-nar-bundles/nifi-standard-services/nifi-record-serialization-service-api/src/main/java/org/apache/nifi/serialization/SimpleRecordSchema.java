@@ -19,17 +19,29 @@ package org.apache.nifi.serialization;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
+
+import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.RecordField;
+import org.apache.nifi.serialization.record.RecordSchema;
 
 public class SimpleRecordSchema implements RecordSchema {
     private final List<RecordField> fields;
-    private final Map<String, DataType> types;
+    private final Map<String, Integer> fieldIndices;
 
     public SimpleRecordSchema(final List<RecordField> fields) {
         this.fields = Collections.unmodifiableList(new ArrayList<>(fields));
-        types = fields.stream().collect(Collectors.toMap(field -> field.getFieldName(), field -> field.getDataType()));
+        this.fieldIndices = new HashMap<>(fields.size());
+
+        int index = 0;
+        for (final RecordField field : fields) {
+            fieldIndices.put(field.getFieldName(), index++);
+        }
     }
 
     @Override
@@ -60,8 +72,15 @@ public class SimpleRecordSchema implements RecordSchema {
     }
 
     @Override
-    public DataType getDataType(final String fieldName) {
-        return types.get(fieldName);
+    public Optional<DataType> getDataType(final String fieldName) {
+        final OptionalInt idx = getFieldIndex(fieldName);
+        return idx.isPresent() ? Optional.of(fields.get(idx.getAsInt()).getDataType()) : Optional.empty();
+    }
+
+    @Override
+    public OptionalInt getFieldIndex(final String fieldName) {
+        final Integer index = fieldIndices.get(fieldName);
+        return index == null ? OptionalInt.empty() : OptionalInt.of(index);
     }
 
     @Override

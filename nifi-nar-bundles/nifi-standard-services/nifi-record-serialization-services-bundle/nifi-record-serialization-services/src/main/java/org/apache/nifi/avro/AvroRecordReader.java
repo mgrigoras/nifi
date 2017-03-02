@@ -37,13 +37,13 @@ import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericFixed;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
-import org.apache.nifi.serialization.DataType;
 import org.apache.nifi.serialization.MalformedRecordException;
-import org.apache.nifi.serialization.RecordField;
-import org.apache.nifi.serialization.RecordFieldType;
-import org.apache.nifi.serialization.RecordSchema;
 import org.apache.nifi.serialization.RowRecordReader;
 import org.apache.nifi.serialization.SimpleRecordSchema;
+import org.apache.nifi.serialization.record.DataType;
+import org.apache.nifi.serialization.record.RecordField;
+import org.apache.nifi.serialization.record.RecordFieldType;
+import org.apache.nifi.serialization.record.RecordSchema;
 
 public class AvroRecordReader implements RowRecordReader {
     private final InputStream in;
@@ -206,11 +206,11 @@ public class AvroRecordReader implements RowRecordReader {
             case NULL:
             case MAP:
             case RECORD:
-                recordFieldType = RecordFieldType.OBJECT;
+                recordFieldType = RecordFieldType.RECORD;
                 break;
             case UNION:
                 final List<Schema> subSchemas = avroSchema.getTypes();
-                recordFieldType = RecordFieldType.OBJECT;
+                recordFieldType = RecordFieldType.RECORD;
 
                 if (subSchemas.size() == 2) {
                     if (subSchemas.get(0).getType() == Type.NULL) {
