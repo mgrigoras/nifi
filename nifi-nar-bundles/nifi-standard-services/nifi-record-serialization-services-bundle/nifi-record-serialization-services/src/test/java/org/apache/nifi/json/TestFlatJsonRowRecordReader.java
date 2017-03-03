@@ -46,7 +46,7 @@ public class TestFlatJsonRowRecordReader {
     @Test
     public void testReadArray() throws IOException, MalformedRecordException {
         try (final InputStream in = new FileInputStream(new File("src/test/resources/json/bank-account-array.json"));
-            final FlatJsonRowRecordReader reader = new FlatJsonRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
+            final JsonTreeRowRecordReader reader = new JsonTreeRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
 
             final RecordSchema schema = reader.getSchema();
 
@@ -72,7 +72,7 @@ public class TestFlatJsonRowRecordReader {
     @Test
     public void testSingleJsonElement() throws IOException, MalformedRecordException {
         try (final InputStream in = new FileInputStream(new File("src/test/resources/json/single-bank-account.json"));
-            final FlatJsonRowRecordReader reader = new FlatJsonRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
+            final JsonTreeRowRecordReader reader = new JsonTreeRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
 
             final RecordSchema schema = reader.getSchema();
 
@@ -95,7 +95,7 @@ public class TestFlatJsonRowRecordReader {
     @Test
     public void testElementWithNestedData() throws IOException, MalformedRecordException {
         try (final InputStream in = new FileInputStream(new File("src/test/resources/json/single-element-nested.json"));
-            final FlatJsonRowRecordReader reader = new FlatJsonRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
+            final JsonTreeRowRecordReader reader = new JsonTreeRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
 
             final RecordSchema schema = reader.getSchema();
 
@@ -105,7 +105,7 @@ public class TestFlatJsonRowRecordReader {
 
             final List<RecordFieldType> dataTypes = schema.getDataTypes().stream().map(dt -> dt.getFieldType()).collect(Collectors.toList());
             final List<RecordFieldType> expectedTypes = Arrays.asList(new RecordFieldType[] {RecordFieldType.INT, RecordFieldType.STRING,
-                RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.RECORD});
+                RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.STRING, RecordFieldType.OBJECT});
             assertEquals(expectedTypes, dataTypes);
 
             final Object[] firstRecordValues = reader.nextRecord(schema).getValues();
@@ -125,7 +125,7 @@ public class TestFlatJsonRowRecordReader {
     @Test
     public void testElementWithNestedArray() throws IOException, MalformedRecordException {
         try (final InputStream in = new FileInputStream(new File("src/test/resources/json/single-element-nested-array.json"));
-            final FlatJsonRowRecordReader reader = new FlatJsonRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
+            final JsonTreeRowRecordReader reader = new JsonTreeRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
 
             final RecordSchema schema = reader.getSchema();
 
@@ -153,7 +153,7 @@ public class TestFlatJsonRowRecordReader {
     @Test
     public void testReadArrayDifferentSchemas() throws IOException, MalformedRecordException {
         try (final InputStream in = new FileInputStream(new File("src/test/resources/json/bank-account-array-different-schemas.json"));
-            final FlatJsonRowRecordReader reader = new FlatJsonRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
+            final JsonTreeRowRecordReader reader = new JsonTreeRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
 
             final RecordSchema schema = reader.getSchema();
 
@@ -185,7 +185,7 @@ public class TestFlatJsonRowRecordReader {
         overrides.put("address2", RecordFieldType.STRING.getDataType());
 
         try (final InputStream in = new FileInputStream(new File("src/test/resources/json/bank-account-array-different-schemas.json"));
-            final FlatJsonRowRecordReader reader = new FlatJsonRowRecordReader(in, Mockito.mock(ComponentLog.class), overrides)) {
+            final JsonTreeRowRecordReader reader = new JsonTreeRowRecordReader(in, Mockito.mock(ComponentLog.class), overrides)) {
 
             final RecordSchema schema = reader.getSchema();
 
@@ -214,7 +214,7 @@ public class TestFlatJsonRowRecordReader {
     @Test
     public void testReadUnicodeCharacters() throws IOException, MalformedRecordException {
         try (final InputStream in = new FileInputStream(new File("src/test/resources/json/json-with-unicode.json"));
-            final FlatJsonRowRecordReader reader = new FlatJsonRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
+            final JsonTreeRowRecordReader reader = new JsonTreeRowRecordReader(in, Mockito.mock(ComponentLog.class), Collections.emptyMap())) {
 
             final RecordSchema schema = reader.getSchema();
             final Object[] firstRecordValues = reader.nextRecord(schema).getValues();

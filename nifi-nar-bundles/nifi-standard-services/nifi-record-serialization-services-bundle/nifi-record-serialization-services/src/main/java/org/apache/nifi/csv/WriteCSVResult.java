@@ -24,6 +24,7 @@ import java.util.Collections;
 
 import org.apache.nifi.serialization.RecordSetWriter;
 import org.apache.nifi.serialization.WriteResult;
+import org.apache.nifi.serialization.record.DataType;
 import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordSchema;
 import org.apache.nifi.serialization.record.RecordSet;
@@ -31,6 +32,29 @@ import org.apache.nifi.serialization.record.RecordSet;
 import au.com.bytecode.opencsv.CSVWriter;
 
 public class WriteCSVResult implements RecordSetWriter {
+    private final String dateFormat;
+    private final String timeFormat;
+    private final String timestampFormat;
+
+    public WriteCSVResult(final String dateFormat, final String timeFormat, final String timestampFormat) {
+        this.dateFormat = dateFormat;
+        this.timeFormat = timeFormat;
+        this.timestampFormat = timestampFormat;
+    }
+
+    private String getFormat(final Record record, final int fieldIndex) {
+        final DataType dataType = record.getSchema().getField(fieldIndex).getDataType();
+        switch (dataType.getFieldType()) {
+            case DATE:
+                return dateFormat == null ? dataType.getFormat() : dateFormat;
+            case TIME:
+                return timeFormat == null ? dataType.getFormat() : timeFormat;
+            case TIMESTAMP:
+                return timestampFormat == null ? dataType.getFormat() : timestampFormat;
+        }
+
+        return dataType.getFormat();
+    }
 
     @Override
     public WriteResult write(final RecordSet rs, final OutputStream out) throws IOException {
@@ -47,7 +71,7 @@ public class WriteCSVResult implements RecordSetWriter {
                 while ((record = rs.next()) != null) {
                     final String[] colVals = new String[schema.getFieldCount()];
                     for (int i = 0; i < schema.getFieldCount(); i++) {
-                        colVals[i] = record.getAsString(i);
+                        colVals[i] = record.getAsString(i, getFormat(record, i));
                     }
 
                     writer.writeNext(colVals);

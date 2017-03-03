@@ -123,10 +123,10 @@ public abstract class AbstractJsonRowRecordReader implements RecordReader {
             return RecordFieldType.ARRAY;
         }
         if (node.isObject()) {
-            return RecordFieldType.RECORD;
+            return RecordFieldType.OBJECT;
         }
 
-        return RecordFieldType.RECORD;
+        return RecordFieldType.OBJECT;
     }
 
 
@@ -218,7 +218,7 @@ public abstract class AbstractJsonRowRecordReader implements RecordReader {
 
                 return arrayElements;
             }
-            case RECORD: {
+            case OBJECT: {
                 if (fieldNode.isObject()) {
                     final ObjectNode objectNode = (ObjectNode) fieldNode;
                     final Iterator<Map.Entry<String, JsonNode>> childItr = objectNode.getFields();

@@ -19,19 +19,19 @@ package org.apache.nifi.csv;
 
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
-import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.logging.ComponentLog;
+import org.apache.nifi.serialization.AbstractRecordSetWriter;
 import org.apache.nifi.serialization.RecordSetWriter;
 import org.apache.nifi.serialization.RecordSetWriterFactory;
 
 @Tags({"csv", "result", "set", "writer", "serializer", "record", "row"})
 @CapabilityDescription("Writes the contents of a Database ResultSet as CSV data. The first line written "
     + "will be the column names. All subsequent lines will be the values corresponding to those columns.")
-public class CSVRecordSetWriter extends AbstractControllerService implements RecordSetWriterFactory {
+public class CSVRecordSetWriter extends AbstractRecordSetWriter implements RecordSetWriterFactory {
 
     @Override
     public RecordSetWriter createWriter(final ComponentLog logger) {
-        return new WriteCSVResult();
+        return new WriteCSVResult(getDateFormat(), getTimeFormat(), getTimestampFormat());
     }
 
 }

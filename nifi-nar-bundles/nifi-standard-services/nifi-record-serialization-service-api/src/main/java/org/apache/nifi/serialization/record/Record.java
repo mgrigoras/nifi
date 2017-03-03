@@ -44,6 +44,10 @@ public interface Record {
 
     String getAsString(String fieldName);
 
+    String getAsString(int index, String format);
+
+    String getAsString(String fieldName, String format);
+
     Long getAsLong(int index);
 
     Long getAsLong(String fieldName);
@@ -71,6 +75,10 @@ public interface Record {
     Date getAsDate(int index);
 
     Date getAsDate(String fieldName);
+
+    Date getAsDate(int index, String format);
+
+    Date getAsDate(String fieldName, String format);
 
     Object[] getAsArray(int index);
 

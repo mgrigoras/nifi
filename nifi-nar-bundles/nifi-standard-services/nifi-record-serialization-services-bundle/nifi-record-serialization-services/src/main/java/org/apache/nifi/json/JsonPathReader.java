@@ -49,7 +49,7 @@ import com.jayway.jsonpath.JsonPath;
     + "a single JSON object or a JSON array. If a JSON array is found, each JSON object within that array is treated as a separate record. "
     + "User-defined properties define the fields that should be extracted from the JSON in order to form the fields of a Record. Any JSON field "
     + "that is not extracted via a JSONPath will not be returned in the JSON Records.")
-@SeeAlso(FlatJsonReader.class)
+@SeeAlso(JsonTreeReader.class)
 @DynamicProperty(name = "The field name for the record. If it is desirable to enforce that the value be coerced into a given type, its type can be included "
     + "in the name by using a syntax of <field name>:<field type>. For example, \"balance:double\".",
     value="A JSONPath Expression that will be evaluated against each JSON record. The result of the JSONPath will be the value of the "

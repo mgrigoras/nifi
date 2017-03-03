@@ -26,6 +26,10 @@ import java.nio.ByteBuffer;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,9 +50,15 @@ import org.apache.nifi.serialization.record.RecordSet;
 
 public class WriteAvroResult implements RecordSetWriter {
     private final Schema schema;
+    private final String datePattern;
+    private final String timePattern;
+    private final String timestampPattern;
 
-    public WriteAvroResult(final Schema schema) {
+    public WriteAvroResult(final Schema schema, final String dateFormat, final String timeFormat, final String timestampFormat) {
         this.schema = schema;
+        this.datePattern = dateFormat;
+        this.timePattern = timeFormat;
+        this.timestampPattern = timestampFormat;
     }
 
     @Override
@@ -59,6 +69,9 @@ public class WriteAvroResult implements RecordSetWriter {
         }
 
         final GenericRecord rec = new GenericData.Record(schema);
+        final DateFormat dateFormat = new SimpleDateFormat(this.datePattern);
+        final DateFormat timeFormat = new SimpleDateFormat(this.timePattern);
+        final DateFormat timestampFormat = new SimpleDateFormat(this.timestampPattern);
 
         int nrOfRows = 0;
         final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
@@ -78,7 +91,7 @@ public class WriteAvroResult implements RecordSetWriter {
                         continue;
                     }
 
-                    final Object converted = convert(value, field.schema(), fieldName);
+                    final Object converted = convert(value, field.schema(), fieldName, dateFormat, timeFormat, timestampFormat);
                     rec.put(fieldName, converted);
                 }
 
@@ -91,7 +104,8 @@ public class WriteAvroResult implements RecordSetWriter {
     }
 
 
-    private Object convert(final Object value, final Schema schema, final String fieldName) throws SQLException, IOException {
+    private Object convert(final Object value, final Schema schema, final String fieldName, final DateFormat dateFormat,
+        final DateFormat timeFormat, final DateFormat timestampFormat) throws SQLException, IOException {
         if (value == null) {
             return null;
         }
@@ -179,7 +193,7 @@ public class WriteAvroResult implements RecordSetWriter {
                             continue;
                         }
 
-                        final Object converted = convert(mapValue, field.schema(), key);
+                        final Object converted = convert(mapValue, field.schema(), key, dateFormat, timeFormat, timestampFormat);
                         record.put(key, converted);
                     }
                     return record;
@@ -192,12 +206,27 @@ public class WriteAvroResult implements RecordSetWriter {
         } else if (value instanceof Object[]) {
             final List<Object> list = new ArrayList<>();
             for (final Object o : ((Object[]) value)) {
-                final Object converted = convert(o, schema.getElementType(), fieldName);
+                final Object converted = convert(o, schema.getElementType(), fieldName, dateFormat, timeFormat, timestampFormat);
                 list.add(converted);
             }
             return list;
         } else if (value instanceof Number) {
             return value;
+        } else if (value instanceof java.util.Date) {
+            final java.util.Date date = (java.util.Date) value;
+            return dateFormat.format(date);
+        } else if (value instanceof java.sql.Date) {
+            final java.sql.Date sqlDate = (java.sql.Date) value;
+            final java.util.Date date = new java.util.Date(sqlDate.getTime());
+            return dateFormat.format(date);
+        } else if (value instanceof Time) {
+            final Time time = (Time) value;
+            final java.util.Date date = new java.util.Date(time.getTime());
+            return dateFormat.format(date);
+        } else if (value instanceof Timestamp) {
+            final Timestamp time = (Timestamp) value;
+            final java.util.Date date = new java.util.Date(time.getTime());
+            return dateFormat.format(date);
         }
 
         // The different types that we support are numbers (int, long, double, float),

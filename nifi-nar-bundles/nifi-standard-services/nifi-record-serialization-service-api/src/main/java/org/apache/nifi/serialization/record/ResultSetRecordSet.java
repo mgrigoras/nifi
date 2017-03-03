@@ -154,7 +154,7 @@ public class ResultSetRecordSet implements RecordSet, Closeable {
                 return RecordFieldType.STRING;
             case Types.OTHER:
             case Types.JAVA_OBJECT:
-                return RecordFieldType.RECORD;
+                return RecordFieldType.OBJECT;
             case Types.TIME:
             case Types.TIME_WITH_TIMEZONE:
                 return RecordFieldType.TIME;

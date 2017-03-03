@@ -168,7 +168,7 @@ public class JsonPathRowRecordReader extends AbstractJsonRowRecordReader {
     private boolean shouldConvert(final Object value, final RecordFieldType determinedType) {
         return determinedType != null
             && determinedType != RecordFieldType.ARRAY
-            && determinedType != RecordFieldType.RECORD
+            && determinedType != RecordFieldType.OBJECT
             && !(value instanceof Map);
     }
 
@@ -219,7 +219,7 @@ public class JsonPathRowRecordReader extends AbstractJsonRowRecordReader {
             return RecordFieldType.ARRAY;
         }
 
-        return RecordFieldType.RECORD;
+        return RecordFieldType.OBJECT;
     }
 
     /**

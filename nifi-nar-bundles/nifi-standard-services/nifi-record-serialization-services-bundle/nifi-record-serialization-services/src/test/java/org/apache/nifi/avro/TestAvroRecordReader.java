@@ -145,16 +145,16 @@ public class TestAvroRecordReader {
             assertEquals(RecordFieldType.DOUBLE, recordSchema.getDataType("balance").get().getFieldType());
             assertEquals(RecordFieldType.FLOAT, recordSchema.getDataType("rate").get().getFieldType());
             assertEquals(RecordFieldType.BOOLEAN, recordSchema.getDataType("debt").get().getFieldType());
-            assertEquals(RecordFieldType.RECORD, recordSchema.getDataType("nickname").get().getFieldType());
+            assertEquals(RecordFieldType.OBJECT, recordSchema.getDataType("nickname").get().getFieldType());
             assertEquals(RecordFieldType.ARRAY, recordSchema.getDataType("binary").get().getFieldType());
             assertEquals(RecordFieldType.ARRAY, recordSchema.getDataType("fixed").get().getFieldType());
-            assertEquals(RecordFieldType.RECORD, recordSchema.getDataType("map").get().getFieldType());
+            assertEquals(RecordFieldType.OBJECT, recordSchema.getDataType("map").get().getFieldType());
             assertEquals(RecordFieldType.ARRAY, recordSchema.getDataType("array").get().getFieldType());
-            assertEquals(RecordFieldType.RECORD, recordSchema.getDataType("account").get().getFieldType());
+            assertEquals(RecordFieldType.OBJECT, recordSchema.getDataType("account").get().getFieldType());
             assertEquals(RecordFieldType.DOUBLE, recordSchema.getDataType("desiredbalance").get().getFieldType());
             assertEquals(RecordFieldType.DOUBLE, recordSchema.getDataType("dreambalance").get().getFieldType());
-            assertEquals(RecordFieldType.RECORD, recordSchema.getDataType("favAnimal").get().getFieldType());
-            assertEquals(RecordFieldType.RECORD, recordSchema.getDataType("otherFavAnimal").get().getFieldType());
+            assertEquals(RecordFieldType.OBJECT, recordSchema.getDataType("favAnimal").get().getFieldType());
+            assertEquals(RecordFieldType.OBJECT, recordSchema.getDataType("otherFavAnimal").get().getFieldType());
 
             final Object[] values = reader.nextRecord(recordSchema).getValues();
             assertEquals(15, values.length);

@@ -17,23 +17,23 @@
 
 package org.apache.nifi.json;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.annotation.lifecycle.OnEnabled;
 import org.apache.nifi.components.PropertyDescriptor;
-import org.apache.nifi.controller.AbstractControllerService;
 import org.apache.nifi.controller.ConfigurationContext;
 import org.apache.nifi.logging.ComponentLog;
+import org.apache.nifi.serialization.AbstractRecordSetWriter;
 import org.apache.nifi.serialization.RecordSetWriter;
 import org.apache.nifi.serialization.RecordSetWriterFactory;
 
 @Tags({"json", "resultset", "writer", "serialize", "record", "row"})
 @CapabilityDescription("Writes the results of a Database ResultSet as a JSON Array. Even if the ResultSet "
     + "consists of a single row, it will be written as an array with a single element.")
-public class JsonRecordSetWriter extends AbstractControllerService implements RecordSetWriterFactory {
+public class JsonRecordSetWriter extends AbstractRecordSetWriter implements RecordSetWriterFactory {
 
     static final PropertyDescriptor PRETTY_PRINT_JSON = new PropertyDescriptor.Builder()
         .name("Pretty Print JSON")
@@ -48,7 +48,9 @@ public class JsonRecordSetWriter extends AbstractControllerService implements Re
 
     @Override
     protected List<PropertyDescriptor> getSupportedPropertyDescriptors() {
-        return Collections.singletonList(PRETTY_PRINT_JSON);
+        final List<PropertyDescriptor> properties = new ArrayList<>(super.getSupportedPropertyDescriptors());
+        properties.add(PRETTY_PRINT_JSON);
+        return properties;
     }
 
     @OnEnabled
@@ -58,7 +60,7 @@ public class JsonRecordSetWriter extends AbstractControllerService implements Re
 
     @Override
     public RecordSetWriter createWriter(final ComponentLog logger) {
-        return new WriteJsonResult(prettyPrint);
+        return new WriteJsonResult(prettyPrint, getDateFormat(), getTimeFormat(), getTimestampFormat());
     }
 
 }

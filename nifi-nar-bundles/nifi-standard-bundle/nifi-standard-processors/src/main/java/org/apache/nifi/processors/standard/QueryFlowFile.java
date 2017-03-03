@@ -80,12 +80,13 @@ import org.apache.nifi.util.StopWatch;
 @EventDriven
 @SideEffectFree
 @SupportsBatching
-@Tags({"sql", "transform", "calcite", "route", "query", "select", "update", "modify", "etl", "filter", "record", "csv", "json", "logs", "text", "avro", "aggregate"})
+@Tags({"sql", "query", "calcite", "route", "record", "transform", "select", "update", "modify", "etl", "filter", "record", "csv", "json", "logs", "text", "avro", "aggregate"})
 @InputRequirement(Requirement.INPUT_REQUIRED)
 @CapabilityDescription("Evaluates one or more SQL queries against the contents of a FlowFile. The result of the "
     + "SQL query then becomes the content of the output FlowFile. This can be used, for example, "
     + "for field-specific filtering, transformation, and row-level filtering. "
     + "Columns can be renamed, simple calculations and aggregations performed, etc. "
+    + "The Processor is configured with a Record Reader Controller Service and a Record Writer service so as to allow flexibility in incoming and outgoing data formats. "
     + "The Processor must be configured with at least one user-defined property. The name of the Property "
     + "is the Relationship to route data to, and the value of the Property is a SQL SELECT statement that is used to specify how input data should be transformed/filtered. "
     + "The SQL statement must be valid ANSI SQL and is powered by Apache Calcite. "

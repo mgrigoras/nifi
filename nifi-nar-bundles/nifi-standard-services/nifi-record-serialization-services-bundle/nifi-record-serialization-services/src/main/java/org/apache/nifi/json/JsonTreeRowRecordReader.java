@@ -39,11 +39,11 @@ import org.apache.nifi.serialization.record.RecordSchema;
 import org.codehaus.jackson.JsonNode;
 
 
-public class FlatJsonRowRecordReader extends AbstractJsonRowRecordReader {
+public class JsonTreeRowRecordReader extends AbstractJsonRowRecordReader {
     private final Map<String, DataType> fieldTypeOverrides;
 
 
-    public FlatJsonRowRecordReader(final InputStream in, final ComponentLog logger, final Map<String, DataType> fieldTypeOverrides) throws IOException, MalformedRecordException {
+    public JsonTreeRowRecordReader(final InputStream in, final ComponentLog logger, final Map<String, DataType> fieldTypeOverrides) throws IOException, MalformedRecordException {
         super(in, logger);
         this.fieldTypeOverrides = fieldTypeOverrides;
     }

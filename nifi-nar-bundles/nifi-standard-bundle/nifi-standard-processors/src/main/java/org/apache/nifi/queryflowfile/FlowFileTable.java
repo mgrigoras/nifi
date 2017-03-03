@@ -189,7 +189,7 @@ public class FlowFileTable<S, E> extends AbstractTable implements QueryableTable
                 return typeFactory.createJavaType(String.class);
             case ARRAY:
                 return typeFactory.createJavaType(Object[].class);
-            case RECORD:
+            case OBJECT:
                 return typeFactory.createJavaType(Object.class);
         }
 

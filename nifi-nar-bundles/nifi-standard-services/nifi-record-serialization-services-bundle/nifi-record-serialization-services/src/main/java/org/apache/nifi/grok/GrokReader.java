@@ -38,9 +38,6 @@ import org.apache.nifi.serialization.UserTypeOverrideRowReader;
 import io.thekraken.grok.api.Grok;
 import io.thekraken.grok.api.exception.GrokException;
 
-// TODO: Test 'embedded' patterns or 'sub-patterns' - we need to get the fields for those as well.
-// TODO: Instead of providing default-grok-patterns.txt we should add dependency on https://github.com/logstash-plugins/logstash-patterns-core
-// and then package those patterns as resources.
 @Tags({"grok", "logs", "logfiles", "parse", "unstructured", "text", "record", "reader", "regex", "pattern", "logstash"})
 @CapabilityDescription("Provides a mechanism for reading unstructured text data, such as log files, and structuring the data "
     + "so that it can be processed. The service is configured using Grok patterns. "
@@ -83,13 +80,14 @@ public class GrokReader extends UserTypeOverrideRowReader implements RowRecordRe
     public void preCompile(final ConfigurationContext context) throws GrokException, IOException {
         grok = new Grok();
 
-        if (context.getProperty(PATTERN_FILE).isSet()) {
-            try (final InputStream in = getClass().getResourceAsStream(DEFAULT_PATTERN_NAME);
-                final Reader reader = new InputStreamReader(in)) {
-                grok.addPatternFromReader(reader);
-            }
+        try (final InputStream in = getClass().getResourceAsStream(DEFAULT_PATTERN_NAME);
+            final Reader reader = new InputStreamReader(in)) {
+            grok.addPatternFromReader(reader);
         }
-        grok.addPatternFromFile(context.getProperty(PATTERN_FILE).getValue());
+
+        if (context.getProperty(PATTERN_FILE).isSet()) {
+            grok.addPatternFromFile(context.getProperty(PATTERN_FILE).getValue());
+        }
 
         grok.compile(context.getProperty(GROK_EXPRESSION).getValue());
     }

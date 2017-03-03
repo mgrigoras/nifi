@@ -17,6 +17,8 @@
 
 package org.apache.nifi.serialization.record;
 
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -61,17 +63,55 @@ public class ObjectArrayRecord implements Record {
 
     @Override
     public String getAsString(final int index) {
-        return convertToString(getValue(index));
+        return convertToString(getValue(index), schema.getField(index).getDataType().getFormat());
+    }
+
+    @Override
+    public String getAsString(final int index, final String format) {
+        return convertToString(getValue(index), format);
     }
 
     @Override
     public String getAsString(final String fieldName) {
-        return convertToString(getValue(fieldName));
+        final Optional<DataType> dataTypeOption = schema.getDataType(fieldName);
+        if (!dataTypeOption.isPresent()) {
+            return null;
+        }
+
+        return convertToString(getValue(fieldName), dataTypeOption.get().getFormat());
     }
 
-    private String convertToString(final Object value) {
+    @Override
+    public String getAsString(final String fieldName, final String format) {
+        return convertToString(getValue(fieldName), format);
+    }
+
+    private String getFormat(final String optionalFormat, final RecordFieldType fieldType) {
+        return (optionalFormat == null) ? fieldType.getDefaultFormat() : optionalFormat;
+    }
+
+    private String convertToString(final Object value, final String format) {
         if (value == null) {
             return null;
+        }
+
+        if (value instanceof java.sql.Date) {
+            java.sql.Date date = (java.sql.Date) value;
+            final long time = date.getTime();
+            return new SimpleDateFormat(getFormat(format, RecordFieldType.DATE)).format(new java.util.Date(time));
+        }
+        if (value instanceof java.util.Date) {
+            return new SimpleDateFormat(getFormat(format, RecordFieldType.DATE)).format((java.util.Date) value);
+        }
+        if (value instanceof Timestamp) {
+            java.sql.Timestamp date = (java.sql.Timestamp) value;
+            final long time = date.getTime();
+            return new SimpleDateFormat(getFormat(format, RecordFieldType.TIMESTAMP)).format(new java.util.Date(time));
+        }
+        if (value instanceof Time) {
+            java.sql.Time date = (java.sql.Time) value;
+            final long time = date.getTime();
+            return new SimpleDateFormat(getFormat(format, RecordFieldType.TIME)).format(new java.util.Date(time));
         }
 
         return value.toString();
@@ -245,6 +285,11 @@ public class ObjectArrayRecord implements Record {
     }
 
     @Override
+    public Date getAsDate(final int index, final String format) {
+        return convertToDate(getValue(index), index, format);
+    }
+
+    @Override
     public Date getAsDate(final String fieldName) {
         final Optional<DataType> dataTypeOption = schema.getDataType(fieldName);
         if (!dataTypeOption.isPresent()) {
@@ -252,6 +297,11 @@ public class ObjectArrayRecord implements Record {
         }
 
         return convertToDate(getValue(fieldName), fieldName, dataTypeOption.get().getFormat());
+    }
+
+    @Override
+    public Date getAsDate(final String fieldName, final String format) {
+        return convertToDate(getValue(fieldName), fieldName, format);
     }
 
     private Date convertToDate(final Object value, final Object fieldDesc, final String format) {
@@ -271,7 +321,7 @@ public class ObjectArrayRecord implements Record {
         }
         if (value instanceof String) {
             try {
-                return new SimpleDateFormat(format).parse((String) value);
+                return new SimpleDateFormat(getFormat(format, RecordFieldType.DATE)).parse((String) value);
             } catch (final ParseException e) {
                 throw new TypeMismatchException("Cannot convert String value to date for field " + fieldDesc + " because it is not in the correct format of: " + format, e);
             }

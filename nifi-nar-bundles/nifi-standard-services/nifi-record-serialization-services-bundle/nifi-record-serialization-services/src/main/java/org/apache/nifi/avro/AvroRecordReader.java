@@ -208,11 +208,11 @@ public class AvroRecordReader implements RecordReader {
             case NULL:
             case MAP:
             case RECORD:
-                recordFieldType = RecordFieldType.RECORD;
+                recordFieldType = RecordFieldType.OBJECT;
                 break;
             case UNION:
                 final List<Schema> subSchemas = avroSchema.getTypes();
-                recordFieldType = RecordFieldType.RECORD;
+                recordFieldType = RecordFieldType.OBJECT;
 
                 if (subSchemas.size() == 2) {
                     if (subSchemas.get(0).getType() == Type.NULL) {

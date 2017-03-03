@@ -30,13 +30,13 @@ import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
 import org.apache.nifi.serialization.UserTypeOverrideRowReader;
 
-@Tags({"json", "flat", "record", "reader", "parser"})
-@CapabilityDescription("Parses JSON records into a row-oriented record. The term \"flat\" here refers to the schema of the JSON, not "
-    + "necessarily the JSON itself. That is, if the JSON has nested arrays and objects, those values will be parsed and their values will "
-    + "be inferred. The data types of the embedded objects' and arrays' fields cannot be specified like highest-level fields can. "
+@Tags({"json", "tree", "record", "reader", "parser"})
+@CapabilityDescription("Parses JSON into individual Record objects. The Record that is produced will contain all top-level "
+    + "elements of the corresponding JSON Object. If the JSON has nested arrays, those values will be represented as an Object array for that field. "
+    + "Nested JSON objects will be represented as a Map. "
     + "The root JSON element can be either a single element or an array of JSON elements, and each "
     + "element in that array will be treated as a separate record. If any of the elements has a nested array or a nested "
-    + "element, they will be returned as OBJECT or ARRAY types, not flattened out into individual records. "
+    + "element, they will be returned as OBJECT or ARRAY types (respectively), not flattened out into individual fields. "
     + "The schema for the record is determined by the first JSON element in the array, if the incoming FlowFile is a JSON array. "
     + "This means that if a field does not exist in the first JSON object, then it will be skipped in all subsequent JSON objects. "
     + "The data type of a field can be overridden by adding a property to "
@@ -47,10 +47,10 @@ import org.apache.nifi.serialization.UserTypeOverrideRowReader;
 @DynamicProperty(name = "<name of JSON field>", value = "<data type of JSON field>",
     description = "User-defined properties are used to indicate that the values of a specific field should be interpreted as a "
     + "user-defined data type (e.g., int, double, float, date, etc.)", supportsExpressionLanguage = false)
-public class FlatJsonReader extends UserTypeOverrideRowReader implements RowRecordReaderFactory {
+public class JsonTreeReader extends UserTypeOverrideRowReader implements RowRecordReaderFactory {
 
     @Override
     public RecordReader createRecordReader(final InputStream in, final ComponentLog logger) throws IOException, MalformedRecordException {
-        return new FlatJsonRowRecordReader(in, logger, getFieldTypeOverrides());
+        return new JsonTreeRowRecordReader(in, logger, getFieldTypeOverrides());
     }
 }

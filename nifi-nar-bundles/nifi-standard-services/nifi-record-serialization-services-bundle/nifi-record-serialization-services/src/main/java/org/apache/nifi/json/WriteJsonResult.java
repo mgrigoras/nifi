@@ -42,9 +42,15 @@ import org.codehaus.jackson.JsonGenerator;
 
 public class WriteJsonResult implements RecordSetWriter {
     private final boolean prettyPrint;
+    private final String datePattern;
+    private final String timePattern;
+    private final String timestampPattern;
 
-    public WriteJsonResult(final boolean prettyPrint) {
+    public WriteJsonResult(final boolean prettyPrint, final String dateFormat, final String timeFormat, final String timestampFormat) {
         this.prettyPrint = prettyPrint;
+        this.datePattern = dateFormat;
+        this.timePattern = timeFormat;
+        this.timestampPattern = timestampFormat;
     }
 
     @Override
@@ -52,9 +58,9 @@ public class WriteJsonResult implements RecordSetWriter {
         int count = 0;
 
         final JsonFactory factory = new JsonFactory();
-        final DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
-        final DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
-        final DateFormat timestampFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss.SSS");
+        final DateFormat dateFormat = new SimpleDateFormat(this.datePattern);
+        final DateFormat timeFormat = new SimpleDateFormat(this.timePattern);
+        final DateFormat timestampFormat = new SimpleDateFormat(this.timestampPattern);
 
         try (final OutputStream out = new BufferedOutputStream(rawOut);
             final JsonGenerator generator = factory.createJsonGenerator(out)) {
@@ -151,7 +157,7 @@ public class WriteJsonResult implements RecordSetWriter {
                 generator.writeString(value.toString());
                 break;
             case ARRAY:
-            case RECORD:
+            case OBJECT:
             default:
                 if ("null".equals(value.toString())) {
                     generator.writeNull();
@@ -235,7 +241,7 @@ public class WriteJsonResult implements RecordSetWriter {
             return RecordFieldType.ARRAY.getDataType();
         }
 
-        return RecordFieldType.RECORD.getDataType();
+        return RecordFieldType.OBJECT.getDataType();
     }
 
     @Override

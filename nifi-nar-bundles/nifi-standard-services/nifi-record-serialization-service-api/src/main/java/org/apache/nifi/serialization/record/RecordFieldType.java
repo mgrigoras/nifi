@@ -34,7 +34,7 @@ public enum RecordFieldType {
     DATE("date", "yyyy-MM-dd"),
     TIME("time", "HH:mm:ss"),
     TIMESTAMP("timestamp", "yyyy-MM-dd HH:mm:ss"),
-    RECORD("record"),
+    OBJECT("object"),
     ARRAY("array");
 
 
