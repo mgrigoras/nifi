@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -108,6 +109,26 @@ public class WriteJsonResult implements RecordSetWriter {
         endTask.apply(generator);
     }
 
+    private String createDate(final Object value, final DateFormat format) {
+        if (value == null) {
+            return null;
+        }
+
+        if (value instanceof Date) {
+            return format.format((Date) value);
+        }
+        if (value instanceof java.sql.Date) {
+            return format.format(new Date(((java.sql.Date) value).getTime()));
+        }
+        if (value instanceof java.sql.Time) {
+            return format.format(new Date(((java.sql.Time) value).getTime()));
+        }
+        if (value instanceof java.sql.Timestamp) {
+            return format.format(new Date(((java.sql.Timestamp) value).getTime()));
+        }
+
+        return null;
+    }
 
     private void writeValue(final JsonGenerator generator, final Object value, final DataType dataType, final boolean moreCols,
         final DateFormat dateFormat, final DateFormat timeFormat, final DateFormat timestampFormat) throws JsonGenerationException, IOException, SQLException {
@@ -119,13 +140,13 @@ public class WriteJsonResult implements RecordSetWriter {
 
         switch (dataType.getFieldType()) {
             case DATE:
-                generator.writeString(dateFormat.format(value.toString()));
+                generator.writeString(createDate(value, dateFormat));
                 break;
             case TIME:
-                generator.writeString(timeFormat.format(value.toString()));
+                generator.writeString(createDate(value, timeFormat));
                 break;
             case TIMESTAMP:
-                generator.writeString(timestampFormat.format(value.toString()));
+                generator.writeString(createDate(value, timestampFormat));
                 break;
             case DOUBLE:
                 generator.writeNumber((Double) value);
