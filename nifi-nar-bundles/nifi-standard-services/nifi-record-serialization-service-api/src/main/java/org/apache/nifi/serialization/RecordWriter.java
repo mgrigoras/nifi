@@ -20,19 +20,9 @@ package org.apache.nifi.serialization;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.nifi.serialization.record.RecordSet;
+import org.apache.nifi.serialization.record.Record;
 
-/**
- * <p>
- * A ResultSetWriter is responsible for writing a ResultSet to a given {@link OutputStream}.
- * </p>
- *
- * <p>
- * PLEASE NOTE: This interface is still considered 'unstable' and may change in a non-backward-compatible
- * manner between minor or incremental releases of NiFi.
- * </p>
- */
-public interface RecordSetWriter extends RecordWriter {
+public interface RecordWriter {
     /**
      * Writes the given result set to the given output stream
      *
@@ -41,5 +31,11 @@ public interface RecordSetWriter extends RecordWriter {
      * @return the results of writing the data
      * @throws IOException if unable to write to the given OutputStream
      */
-    WriteResult write(RecordSet recordSet, OutputStream out) throws IOException;
+    WriteResult write(Record record, OutputStream out) throws IOException;
+
+    /**
+     * @return the MIME Type that the Result Set Writer produces. This will be added to FlowFiles using
+     *         the mime.type attribute.
+     */
+    String getMimeType();
 }

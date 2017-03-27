@@ -45,7 +45,7 @@ public interface RecordReader extends Closeable {
      * @throws IOException if unable to read from the underlying data
      * @throws MalformedRecordException if an unrecoverable failure occurs when trying to parse a record
      */
-    Record nextRecord(RecordSchema schema) throws IOException, MalformedRecordException;
+    Record nextRecord() throws IOException, MalformedRecordException;
 
     /**
      * @return a RecordSchema that is appropriate for the records in the stream

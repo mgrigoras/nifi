@@ -17,7 +17,6 @@
 
 package org.apache.nifi.json;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
@@ -37,35 +36,31 @@ import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordFieldType;
 import org.apache.nifi.serialization.record.RecordSchema;
 import org.apache.nifi.serialization.record.RecordSet;
+import org.apache.nifi.stream.io.NonCloseableOutputStream;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
 
 public class WriteJsonResult implements RecordSetWriter {
     private final boolean prettyPrint;
-    private final String datePattern;
-    private final String timePattern;
-    private final String timestampPattern;
+
+    private final JsonFactory factory = new JsonFactory();
+    private final DateFormat dateFormat;
+    private final DateFormat timeFormat;
+    private final DateFormat timestampFormat;
 
     public WriteJsonResult(final boolean prettyPrint, final String dateFormat, final String timeFormat, final String timestampFormat) {
         this.prettyPrint = prettyPrint;
-        this.datePattern = dateFormat;
-        this.timePattern = timeFormat;
-        this.timestampPattern = timestampFormat;
+        this.dateFormat = new SimpleDateFormat(dateFormat);
+        this.timeFormat = new SimpleDateFormat(timeFormat);
+        this.timestampFormat = new SimpleDateFormat(timestampFormat);
     }
 
     @Override
     public WriteResult write(final RecordSet rs, final OutputStream rawOut) throws IOException {
         int count = 0;
 
-        final JsonFactory factory = new JsonFactory();
-        final DateFormat dateFormat = new SimpleDateFormat(this.datePattern);
-        final DateFormat timeFormat = new SimpleDateFormat(this.timePattern);
-        final DateFormat timestampFormat = new SimpleDateFormat(this.timestampPattern);
-
-        try (final OutputStream out = new BufferedOutputStream(rawOut);
-            final JsonGenerator generator = factory.createJsonGenerator(out)) {
-
+        try (final JsonGenerator generator = factory.createJsonGenerator(new NonCloseableOutputStream(rawOut))) {
             if (prettyPrint) {
                 generator.useDefaultPrettyPrinter();
             }
@@ -75,8 +70,7 @@ public class WriteJsonResult implements RecordSetWriter {
             Record record;
             while ((record = rs.next()) != null) {
                 count++;
-                writeRecord(record, generator, dateFormat, timeFormat, timestampFormat,
-                    g -> g.writeStartObject(), g -> g.writeEndObject());
+                writeRecord(record, generator, g -> g.writeStartObject(), g -> g.writeEndObject());
             }
 
             generator.writeEndArray();
@@ -87,8 +81,22 @@ public class WriteJsonResult implements RecordSetWriter {
         return WriteResult.of(count, Collections.emptyMap());
     }
 
-    private void writeRecord(final Record record, final JsonGenerator generator, final DateFormat dateFormat, final DateFormat timeFormat, final DateFormat timestampFormat,
-        final GeneratorTask startTask, final GeneratorTask endTask)
+    @Override
+    public WriteResult write(final Record record, final OutputStream rawOut) throws IOException {
+        try (final JsonGenerator generator = factory.createJsonGenerator(new NonCloseableOutputStream(rawOut))) {
+            if (prettyPrint) {
+                generator.useDefaultPrettyPrinter();
+            }
+
+            writeRecord(record, generator, g -> g.writeStartObject(), g -> g.writeEndObject());
+        } catch (final SQLException e) {
+            throw new IOException("Failed to write records to stream", e);
+        }
+
+        return WriteResult.of(1, Collections.emptyMap());
+    }
+
+    private void writeRecord(final Record record, final JsonGenerator generator, final GeneratorTask startTask, final GeneratorTask endTask)
         throws JsonGenerationException, IOException, SQLException {
 
         final RecordSchema schema = record.getSchema();
@@ -103,7 +111,7 @@ public class WriteJsonResult implements RecordSetWriter {
 
             generator.writeFieldName(fieldName);
             final DataType dataType = schema.getDataType(fieldName).get();
-            writeValue(generator, value, dataType, i < schema.getFieldCount() - 1, dateFormat, timeFormat, timestampFormat);
+            writeValue(generator, value, dataType, i < schema.getFieldCount() - 1);
         }
 
         endTask.apply(generator);
@@ -130,9 +138,8 @@ public class WriteJsonResult implements RecordSetWriter {
         return null;
     }
 
-    private void writeValue(final JsonGenerator generator, final Object value, final DataType dataType, final boolean moreCols,
-        final DateFormat dateFormat, final DateFormat timeFormat, final DateFormat timestampFormat) throws JsonGenerationException, IOException, SQLException {
-
+    private void writeValue(final JsonGenerator generator, final Object value, final DataType dataType, final boolean moreCols)
+        throws JsonGenerationException, IOException, SQLException {
         if (value == null) {
             generator.writeNull();
             return;
@@ -156,6 +163,18 @@ public class WriteJsonResult implements RecordSetWriter {
                 break;
             case INT:
                 generator.writeNumber((Integer) value);
+                break;
+            case LONG:
+                generator.writeNumber((Long) value);
+                break;
+            case BYTE:
+                generator.writeNumber((Byte) value);
+                break;
+            case SHORT:
+                generator.writeNumber((Short) value);
+                break;
+            case CHAR:
+                generator.writeString(((Character) value).toString());
                 break;
             case BIGINT:
                 if (value instanceof Long) {
@@ -190,19 +209,19 @@ public class WriteJsonResult implements RecordSetWriter {
                     for (final Map.Entry<?, ?> entry : map.entrySet()) {
                         generator.writeFieldName(entry.getKey().toString());
                         final boolean moreEntries = ++i < map.size();
-                        writeValue(generator, entry.getValue(), getColType(entry.getValue()), moreEntries, dateFormat, timeFormat, timestampFormat);
+                        writeValue(generator, entry.getValue(), getColType(entry.getValue()), moreEntries);
                     }
                     generator.writeEndObject();
                 } else if (value instanceof List) {
                     final List<?> list = (List<?>) value;
-                    writeArray(list.toArray(), generator, dateFormat, timeFormat, timestampFormat);
+                    writeArray(list.toArray(), generator);
                 } else if (value instanceof Array) {
                     final Array array = (Array) value;
                     final Object[] values = (Object[]) array.getArray();
-                    writeArray(values, generator, dateFormat, timeFormat, timestampFormat);
+                    writeArray(values, generator);
                 } else if (value instanceof Object[]) {
                     final Object[] values = (Object[]) value;
-                    writeArray(values, generator, dateFormat, timeFormat, timestampFormat);
+                    writeArray(values, generator);
                 } else {
                     generator.writeString(value.toString());
                 }
@@ -210,13 +229,12 @@ public class WriteJsonResult implements RecordSetWriter {
         }
     }
 
-    private void writeArray(final Object[] values, final JsonGenerator generator, final DateFormat dateFormat, final DateFormat timeFormat, final DateFormat timestampFormat)
-        throws JsonGenerationException, IOException, SQLException {
+    private void writeArray(final Object[] values, final JsonGenerator generator) throws JsonGenerationException, IOException, SQLException {
         generator.writeStartArray();
         for (int i = 0; i < values.length; i++) {
             final boolean moreEntries = i < values.length - 1;
             final Object element = values[i];
-            writeValue(generator, element, getColType(element), moreEntries, dateFormat, timeFormat, timestampFormat);
+            writeValue(generator, element, getColType(element), moreEntries);
         }
         generator.writeEndArray();
     }

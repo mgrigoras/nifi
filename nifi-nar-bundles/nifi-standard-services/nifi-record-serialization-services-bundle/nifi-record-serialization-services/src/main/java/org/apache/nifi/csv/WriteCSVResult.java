@@ -28,6 +28,7 @@ import org.apache.nifi.serialization.record.DataType;
 import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordSchema;
 import org.apache.nifi.serialization.record.RecordSet;
+import org.apache.nifi.stream.io.NonCloseableOutputStream;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -57,9 +58,10 @@ public class WriteCSVResult implements RecordSetWriter {
     }
 
     @Override
-    public WriteResult write(final RecordSet rs, final OutputStream out) throws IOException {
+    public WriteResult write(final RecordSet rs, final OutputStream rawOut) throws IOException {
         int count = 0;
-        try (final OutputStreamWriter streamWriter = new OutputStreamWriter(out);
+        try (final OutputStream nonCloseable = new NonCloseableOutputStream(rawOut);
+            final OutputStreamWriter streamWriter = new OutputStreamWriter(nonCloseable);
             final CSVWriter writer = new CSVWriter(streamWriter)) {
 
             try {
@@ -83,6 +85,31 @@ public class WriteCSVResult implements RecordSetWriter {
         }
 
         return WriteResult.of(count, Collections.emptyMap());
+    }
+
+    @Override
+    public WriteResult write(final Record record, final OutputStream rawOut) throws IOException {
+        try (final OutputStream nonCloseable = new NonCloseableOutputStream(rawOut);
+            final OutputStreamWriter streamWriter = new OutputStreamWriter(nonCloseable);
+            final CSVWriter writer = new CSVWriter(streamWriter)) {
+
+            try {
+                final RecordSchema schema = record.getSchema();
+                final String[] columnNames = schema.getFieldNames().toArray(new String[0]);
+                writer.writeNext(columnNames);
+
+                final String[] colVals = new String[schema.getFieldCount()];
+                for (int i = 0; i < schema.getFieldCount(); i++) {
+                    colVals[i] = record.getAsString(i, getFormat(record, i));
+                }
+
+                writer.writeNext(colVals);
+            } catch (final Exception e) {
+                throw new IOException("Failed to serialize results", e);
+            }
+        }
+
+        return WriteResult.of(1, Collections.emptyMap());
     }
 
     @Override

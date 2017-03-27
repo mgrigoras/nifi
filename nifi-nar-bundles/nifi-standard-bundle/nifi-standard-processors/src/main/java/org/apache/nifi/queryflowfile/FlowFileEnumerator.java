@@ -29,7 +29,6 @@ import org.apache.nifi.serialization.MalformedRecordException;
 import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.RowRecordReaderFactory;
 import org.apache.nifi.serialization.record.Record;
-import org.apache.nifi.serialization.record.RecordSchema;
 
 public class FlowFileEnumerator<InternalType> implements Enumerator<Object> {
     private final ProcessSession session;
@@ -40,15 +39,12 @@ public class FlowFileEnumerator<InternalType> implements Enumerator<Object> {
 
     private InputStream rawIn;
     private Object currentRow;
-    private RecordSchema schema;
     private RecordReader recordParser;
 
-    public FlowFileEnumerator(final ProcessSession session, final FlowFile flowFile, final ComponentLog logger, final RowRecordReaderFactory parserFactory,
-            final RecordSchema schema, final int[] fields) {
+    public FlowFileEnumerator(final ProcessSession session, final FlowFile flowFile, final ComponentLog logger, final RowRecordReaderFactory parserFactory, final int[] fields) {
         this.session = session;
         this.flowFile = flowFile;
         this.recordParserFactory = parserFactory;
-        this.schema = schema;
         this.logger = logger;
         this.fields = fields;
         reset();
@@ -64,7 +60,7 @@ public class FlowFileEnumerator<InternalType> implements Enumerator<Object> {
         currentRow = null;
         while (currentRow == null) {
             try {
-                currentRow = filterColumns(recordParser.nextRecord(schema));
+                currentRow = filterColumns(recordParser.nextRecord());
                 break;
             } catch (final IOException e) {
                 logger.error("Failed to read next record in stream for " + flowFile + ". Assuming end of stream.", e);

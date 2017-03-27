@@ -48,32 +48,48 @@ public class FreeFormTextWriter implements RecordSetWriter {
 
         try {
             final RecordSchema schema = recordSet.getSchema();
-            final int numCols = schema.getFieldCount();
-            final String[] columnNames = new String[numCols];
-            for (int i = 0; i < numCols; i++) {
-                columnNames[i] = schema.getField(i).getFieldName();
-            }
+            final String[] colNames = getColumnNames(schema);
 
             Record record;
             while ((record = recordSet.next()) != null) {
                 count++;
-
-                final Map<String, String> values = new HashMap<>(numCols);
-                for (int i = 0; i < numCols; i++) {
-                    final String columnName = columnNames[i];
-                    final String columnValue = record.getAsString(i);
-                    values.put(columnName, columnValue);
-                }
-
-                final String evaluated = propertyValue.evaluateAttributeExpressions(values).getValue();
-                out.write(evaluated.getBytes(charset));
-                out.write(NEW_LINE);
+                write(record, out, colNames);
             }
         } catch (final Exception e) {
             throw new ProcessException(e);
         }
 
         return WriteResult.of(count, Collections.emptyMap());
+    }
+
+    private String[] getColumnNames(final RecordSchema schema) {
+        final int numCols = schema.getFieldCount();
+        final String[] columnNames = new String[numCols];
+        for (int i = 0; i < numCols; i++) {
+            columnNames[i] = schema.getField(i).getFieldName();
+        }
+
+        return columnNames;
+    }
+
+    @Override
+    public WriteResult write(final Record record, final OutputStream out) throws IOException {
+        write(record, out, getColumnNames(record.getSchema()));
+        return WriteResult.of(1, Collections.emptyMap());
+    }
+
+    private void write(final Record record, final OutputStream out, final String[] columnNames) throws IOException {
+        final int numCols = columnNames.length;
+        final Map<String, String> values = new HashMap<>(numCols);
+        for (int i = 0; i < numCols; i++) {
+            final String columnName = columnNames[i];
+            final String columnValue = record.getAsString(i);
+            values.put(columnName, columnValue);
+        }
+
+        final String evaluated = propertyValue.evaluateAttributeExpressions(values).getValue();
+        out.write(evaluated.getBytes(charset));
+        out.write(NEW_LINE);
     }
 
     @Override

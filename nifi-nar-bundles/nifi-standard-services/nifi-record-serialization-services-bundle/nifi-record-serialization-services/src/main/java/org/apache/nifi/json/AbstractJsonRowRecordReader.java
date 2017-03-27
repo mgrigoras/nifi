@@ -85,13 +85,13 @@ public abstract class AbstractJsonRowRecordReader implements RecordReader {
     }
 
     @Override
-    public Record nextRecord(final RecordSchema schema) throws IOException, MalformedRecordException {
+    public Record nextRecord() throws IOException, MalformedRecordException {
         if (firstObjectConsumed && !array) {
             return null;
         }
 
         final JsonNode nextNode = getNextJsonNode();
-        return convertJsonNodeToRecord(nextNode, schema);
+        return convertJsonNodeToRecord(nextNode, getSchema());
     }
 
     protected RecordFieldType determineFieldType(final JsonNode node) {

@@ -156,7 +156,7 @@ public class TestAvroRecordReader {
             assertEquals(RecordFieldType.OBJECT, recordSchema.getDataType("favAnimal").get().getFieldType());
             assertEquals(RecordFieldType.OBJECT, recordSchema.getDataType("otherFavAnimal").get().getFieldType());
 
-            final Object[] values = reader.nextRecord(recordSchema).getValues();
+            final Object[] values = reader.nextRecord().getValues();
             assertEquals(15, values.length);
             assertEquals("John", values[0]);
             assertEquals(33, values[1]);

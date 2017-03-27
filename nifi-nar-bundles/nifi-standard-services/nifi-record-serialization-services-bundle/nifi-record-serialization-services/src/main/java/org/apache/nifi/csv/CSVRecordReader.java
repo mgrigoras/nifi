@@ -56,7 +56,9 @@ public class CSVRecordReader implements RecordReader {
     }
 
     @Override
-    public Record nextRecord(final RecordSchema schema) throws IOException, MalformedRecordException {
+    public Record nextRecord() throws IOException, MalformedRecordException {
+        final RecordSchema schema = getSchema();
+
         while (true) {
             final String[] line = reader.readNext();
             if (line == null) {

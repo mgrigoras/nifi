@@ -252,6 +252,11 @@ public class TestQueryFlowFile {
                 public String getMimeType() {
                     return "text/plain";
                 }
+
+                @Override
+                public WriteResult write(Record record, OutputStream out) throws IOException {
+                    return null;
+                }
             };
         }
 
@@ -297,6 +302,11 @@ public class TestQueryFlowFile {
                 public String getMimeType() {
                     return "text/plain";
                 }
+
+                @Override
+                public WriteResult write(Record record, OutputStream out) throws IOException {
+                    return null;
+                }
             };
         }
     }
@@ -335,7 +345,7 @@ public class TestQueryFlowFile {
                 }
 
                 @Override
-                public Record nextRecord(RecordSchema schema) throws IOException, MalformedRecordException {
+                public Record nextRecord() throws IOException, MalformedRecordException {
                     if (failAfterN >= recordCount) {
                         throw new MalformedRecordException("Intentional Unit Test Exception because " + recordCount + " records have been read");
                     }

@@ -66,7 +66,7 @@ public class AvroRecordReader implements RecordReader {
     }
 
     @Override
-    public Record nextRecord(final RecordSchema schema) throws IOException, MalformedRecordException {
+    public Record nextRecord() throws IOException, MalformedRecordException {
         if (!dataFileStream.hasNext()) {
             return null;
         }
@@ -76,6 +76,7 @@ public class AvroRecordReader implements RecordReader {
             record = dataFileStream.next();
         }
 
+        final RecordSchema schema = getSchema();
         final Object[] values = convertRecordToObjectArray(record, schema);
         return new ObjectArrayRecord(schema, values);
     }

@@ -83,12 +83,14 @@ public class GrokRecordReader implements RecordReader {
     }
 
     @Override
-    public Record nextRecord(final RecordSchema schema) throws IOException, MalformedRecordException {
+    public Record nextRecord() throws IOException, MalformedRecordException {
         final String line = nextLine == null ? reader.readLine() : nextLine;
         nextLine = null; // ensure that we don't process nextLine again
         if (line == null) {
             return null;
         }
+
+        final RecordSchema schema = getSchema();
 
         final Match match = grok.match(line);
         match.captures();

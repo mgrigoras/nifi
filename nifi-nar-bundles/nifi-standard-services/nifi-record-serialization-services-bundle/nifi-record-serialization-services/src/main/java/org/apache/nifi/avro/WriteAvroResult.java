@@ -50,28 +50,25 @@ import org.apache.nifi.serialization.record.RecordSet;
 
 public class WriteAvroResult implements RecordSetWriter {
     private final Schema schema;
-    private final String datePattern;
-    private final String timePattern;
-    private final String timestampPattern;
+    private final DateFormat dateFormat;
+    private final DateFormat timeFormat;
+    private final DateFormat timestampFormat;
 
     public WriteAvroResult(final Schema schema, final String dateFormat, final String timeFormat, final String timestampFormat) {
         this.schema = schema;
-        this.datePattern = dateFormat;
-        this.timePattern = timeFormat;
-        this.timestampPattern = timestampFormat;
+        this.dateFormat = new SimpleDateFormat(dateFormat);
+        this.timeFormat = new SimpleDateFormat(timeFormat);
+        this.timestampFormat = new SimpleDateFormat(timestampFormat);
     }
 
     @Override
-    public WriteResult write(final RecordSet rs, final OutputStream outStream) throws IOException, SQLException {
+    public WriteResult write(final RecordSet rs, final OutputStream outStream) throws IOException {
         Record record = rs.next();
         if (record == null) {
             return WriteResult.of(0, Collections.emptyMap());
         }
 
         final GenericRecord rec = new GenericData.Record(schema);
-        final DateFormat dateFormat = new SimpleDateFormat(this.datePattern);
-        final DateFormat timeFormat = new SimpleDateFormat(this.timePattern);
-        final DateFormat timestampFormat = new SimpleDateFormat(this.timestampPattern);
 
         int nrOfRows = 0;
         final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
@@ -91,7 +88,13 @@ public class WriteAvroResult implements RecordSetWriter {
                         continue;
                     }
 
-                    final Object converted = convert(value, field.schema(), fieldName, dateFormat, timeFormat, timestampFormat);
+                    final Object converted;
+                    try {
+                        converted = convert(value, field.schema(), fieldName);
+                    } catch (final SQLException e) {
+                        throw new IOException("Failed to write records to stream", e);
+                    }
+
                     rec.put(fieldName, converted);
                 }
 
@@ -103,9 +106,14 @@ public class WriteAvroResult implements RecordSetWriter {
         return WriteResult.of(nrOfRows, Collections.emptyMap());
     }
 
+    @Override
+    public WriteResult write(final Record record, final OutputStream out) throws IOException {
 
-    private Object convert(final Object value, final Schema schema, final String fieldName, final DateFormat dateFormat,
-        final DateFormat timeFormat, final DateFormat timestampFormat) throws SQLException, IOException {
+        return null;
+    }
+
+
+    private Object convert(final Object value, final Schema schema, final String fieldName) throws SQLException, IOException {
         if (value == null) {
             return null;
         }
@@ -193,7 +201,7 @@ public class WriteAvroResult implements RecordSetWriter {
                             continue;
                         }
 
-                        final Object converted = convert(mapValue, field.schema(), key, dateFormat, timeFormat, timestampFormat);
+                        final Object converted = convert(mapValue, field.schema(), key);
                         record.put(key, converted);
                     }
                     return record;
@@ -206,7 +214,7 @@ public class WriteAvroResult implements RecordSetWriter {
         } else if (value instanceof Object[]) {
             final List<Object> list = new ArrayList<>();
             for (final Object o : ((Object[]) value)) {
-                final Object converted = convert(o, schema.getElementType(), fieldName, dateFormat, timeFormat, timestampFormat);
+                final Object converted = convert(o, schema.getElementType(), fieldName);
                 list.add(converted);
             }
             return list;
@@ -222,11 +230,11 @@ public class WriteAvroResult implements RecordSetWriter {
         } else if (value instanceof Time) {
             final Time time = (Time) value;
             final java.util.Date date = new java.util.Date(time.getTime());
-            return dateFormat.format(date);
+            return timeFormat.format(date);
         } else if (value instanceof Timestamp) {
             final Timestamp time = (Timestamp) value;
             final java.util.Date date = new java.util.Date(time.getTime());
-            return dateFormat.format(date);
+            return timestampFormat.format(date);
         }
 
         // The different types that we support are numbers (int, long, double, float),

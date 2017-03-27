@@ -95,7 +95,7 @@ public class FlowFileTable<S, E> extends AbstractTable implements QueryableTable
             @Override
             @SuppressWarnings({"unchecked", "rawtypes"})
             public Enumerator<Object> enumerator() {
-                return new FlowFileEnumerator(session, flowFile, logger, recordParserFactory, recordSchema, fields);
+                return new FlowFileEnumerator(session, flowFile, logger, recordParserFactory, fields);
             }
         };
     }
